@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dpdirect-test" default="test" basedir=".">
+	<property file="build.properties"/>
+	<!--
+		==================================================================
+		* Define project build classpath.
+		==================================================================
+	-->
+	<path id="build.class.path">
+		<pathelement location="."/>
+		<pathelement location="${classes.dir}/../dpdirect-1.0.0.jar"/>
+		<pathelement location="${m2.repo}/org/xerces/xercesImpl/2.9.1/xercesImpl-2.9.1.jar"/>
+		<pathelement location="${m2.repo}/org/xml-apis/xml-apis/1.3.04/xml-apis-1.3.04.jar"/>
+		<pathelement location="${m2.repo}/org/apache/ant/ant/1.8.4/ant-1.8.4.jar"/>
+		<pathelement location="${m2.repo}/org/apache/ant/ant-launcher/1.8.4/ant-launcher-1.8.4.jar"/>
+		<pathelement location="${m2.repo}/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+		<!--<pathelement location="${m2.repo}/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar"/>-->
+	</path>
+	<!--
+		==================================================================
+		* Define custom tasks.
+		==================================================================
+	-->
+	<taskdef name="dpd" classname="org.dpdirect.dpmgmt.DPDirect">
+		<classpath refid="build.class.path"/>
+	</taskdef>
+	<!--
+		==================================================================
+		* Target to cleanup the build environment.
+		==================================================================
+	-->
+	<target name="test" description="Runs the test">
+		<echo message="Testing..."/>
+		<dpd hostname="dpsoa0101" domain="NICK-TEST">
+			<operation name="get-status">
+				<option name="class" value="ActiveUsers"/>
+			</operation>
+			<!--<operation name="tail-log"> </operation>-->
+		</dpd>
+		<echo message="Done."/>
+	</target>
+</project>

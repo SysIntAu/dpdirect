@@ -1,0 +1,61 @@
+DataPower DPDirect Console Usage:
+
+Enter a SOMA or AMP operation name, followed by 'name=value' options for the operation.
+        Eg. set-file name=local:/myConfig.xml srcFile=c:/Temp/myConfig.xml
+    Console mode allows one operation at a time and retains global settings such as username/userPassword.
+    Global/Deployment options may be altered within the console in a 'name=value' format.
+        Eg. domain=MYDOMAIN
+
+Operations Help: 'find <regex>' returns sample XML for any operation 
+        matching the given regex,     Eg. 'DPDirect find .*[Cc]hange.*'
+        or containing the given word, Eg. 'DPDirect find change' .
+    The sample XML will indicate the attributes and values that may be set as options for an operation.
+    Be aware that some attributes are mandatory, and some (often most) are optional.
+    Typing 'find get-status' will return sample XML for the get-status operation, 
+        and a list of valid values for the class attribute. Eg.
+        ------------------------------------------------------
+        DPDirect> find get-status
+				# Sample XML:
+				<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+				    <env:Header/>
+				    <env:Body>
+				        <man:request domain="?" xmlns:man="http://www.datapower.com/schemas/management">
+				            <man:get-status class="?"/>
+				        </man:request>
+				    </env:Body>
+				</env:Envelope>
+				
+				# Valid 'class' attribute values:
+				ActiveUsers, ARPStatus, AS1PollerSourceProtocolHandlerSummary, AS2SourceProtocolHandlerSummary... (etc)
+				------------------------------------------------------
+    The sample indicates that when issuing a get-status request, the class option must be set to a valid value,
+        Eg. get-status class=ActiveUsers
+        
+Custom Operations: 'tail-log', 'set-dir' and 'get-dir' are custom operations not catered for in the base schema.
+				tail-log takes an optional 'name' parameter (name of the log file - default is 'default-log')  
+				    and an optional 'lines' parameter (starting lines - default is 12).
+				get-dir and set-dir take optional 'srcDir' and 'destDir' params in their native dest and src dir formats.
+
+Custom Options: 
+        srcFile - The value of an option is set to the base64 encoded content of the named file.   
+            It is the source of any base64 payload uploded to the device, such as set-file and do-import. 
+        destFile - The datapower response will be base64 decoded and saved to the named path.
+            It is the destination of any base64 payload downloaded from the device, such as get-file and do-export.
+       
+Starting the console:
+    The FIRST parameter may name a properties file containing global options.
+        Eg. dpdirect DEV
+    name=value pairs may include:
+        hostname=<aHostname>             (reqired, cmdLine or properties file)
+        username=<DPusername>            (reqired, cmdLine, prop file or prompt)
+        userPassword=<DPpassword>        (reqired, cmdLine, prop file or prompt)
+	      port=<aPort>                     (default is '5550')
+	      domain=<aDomainName>             (default for following operations
+	      failOnError=<trueOrFalse>        (default is 'true')
+	      rollbackOnError=<trueOrFalse>    (default is 'false')
+	      debug=<trueOrFalse>              (default is 'false')
+	      SOMAschema=<alt SOMAschema path> (optional alternative location)
+	      AMPschema=<alt AMPschema path>   (optional alternative location)
+    Eg. dpdirect DEV domain=SCRATCH userName=EFGRTT userName=droWssaP ...
+
+  

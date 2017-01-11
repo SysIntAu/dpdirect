@@ -1,0 +1,52 @@
+DataPower DPDirect Command Line Usage:
+
+Help: 'DPDirect help' returns this page.
+      'DPDirect find <regex>' returns sample XML for any operation 
+           matching the given regex,     Eg. 'DPDirect find .*[Cc]hange.*'
+           or containing the given word, Eg. 'DPDirect find change' .
+      The sample XML will indicate the attributes and values that may be set for an operation.
+      Be aware that most attributes and values will be optional.
+
+Properties file (optional)
+    The FIRST parameter may name a properties file containing global options
+    The properties must reside next to the DPDirect jar file and take the form <name>.properties 
+    It is not necessary to include the .properties extension at the cmd-line
+    Eg. dpdirect DEV ...
+
+Global/Deployment options (optional)
+    Global Options (must precede any SOMA or AMP operations).
+    name=value pairs may include:
+      hostname=<aHostname>             (reqired, cmdLine or properties file)
+      username=<DPusername>            (reqired, cmdLine, prop file or prompt)
+      userPassword=<DPpassword>        (reqired, cmdLine, prop file or prompt)
+      port=<aPort>                     (default is '5550')
+      domain=<aDomainName>             (default for following operations
+      failOnError=<trueOrFalse>        (default is 'true')
+      rollbackOnError=<trueOrFalse>    (default is 'false')
+      debug=<trueOrFalse>              (default is 'false')
+      SOMAschema=<alt SOMAschema path> (optional alternative location)
+      AMPschema=<alt AMPschema path>   (optional alternative location)
+    Eg. dpdirect DEV userName=EFGRTT userName=droWssaP ...
+
+CHOICE: hitting enter at this point will enter the DPDirect console mode. Console mode allows one operation at a time.
+    1. Hitting enter at this point will enter the DPDirect console mode.
+        Console mode allows one operation at a time and retains global settings such as username/userPassword.
+        Enter an operation name, eg. 'get-file', with options, eg. name=local:///myfile.xml.
+        Use 'find' to discover valid attribute and element values. eg. 'find get-status'.
+OR  2. Follow the global options with one or more operations identifiers.
+        Stack operations as per follows (this allows reuse of a single session - a faster scription option):
+
+        Operations identifier (at least one) - a valid SOMA or AMP operation name
+          Followed by...
+        Operation options (optional) - options pertaining to the immediately preceeding operation name
+            Operations and options may be stacked. Eg.
+              operation=set-file
+               domain=SCRATCH
+               set-file@name=<domainName>
+               set-file=c:/temp/myfile
+              operation=get-status
+               get-status@class=ActiveUsers
+              etc....
+
+CONSOLE example: dpdirect DEV userName=EFGRTT userPassword=droWssaP
+CMDLINE example: dpdirect hostname=dp10101 userName=EFGRTT userName=droWssaP domain=SYSTEST operation=get-status get-status@class=ActiveUsers operation=RestartDomainRequest operation=SaveConfig

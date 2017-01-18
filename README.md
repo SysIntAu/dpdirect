@@ -47,7 +47,7 @@ The 'find' function will help you construct a command.
   logstore:, temporary:, tasktemplates:
 ```
 So the command is get-filestore, and should include mandatory children and attributes. Not all attributes are mandatory.
-In this case, you will need as a minimum: > get-filestore location=pubcert:
+In this case, it will suffice to enter at the cmd-line: > get-filestore location=pubcert:
 
 'set-file' and 'get-file' will take a srcFile={path} and destFile={path} param respectively... this will encode and decode the base64 payload and save to the file system.
 

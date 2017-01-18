@@ -5,21 +5,13 @@
 
 
 
-###GET or BUILD THE DISTRIBUTION:
+###GET THE DISTRIBUTION:
 
-Method 1: You can test dpdirect AMP operations, without access to SOMA operations, by downloading the distilled/dpdirect-AMP-distribution.zip
+Download the distribution from dist/dpdirect-{version}-deploy.zip , and unzip into a local directory.
 
-Method 2: To access both AMP and SOMA operations, perform the following steps:
+The user will have immediate access to dpdirect AMP operations, without access to the vast majority SOMA operations. The available operations will support simple configuration and deployment functions.
 
-* Pull or download the the project to a local directory.
-Download AMP SOMA schema files (*.xsd) from the store:// directory on the DP Appliance or Virtual machine, and place in the /src/main/resources/datapower/<version>/mgmt directory where <version> is the major version of the firmware, e.g. ‘7.0’. So schemas downloaded from a DP appliance on firmware 7.0.x should be placed into the /src/main/resources/datapower/7.0/mgmt directory. 
-
-* Update the firmware.version in the /src/main/resources/build.properties file to reflect the major version… e.g. ‘firmware.version=7.0’. 
-
-* Download and install Maven, if not already installed, from https://maven.apache.org/download.cgi 
-
-* Build the project. From a command prompt in the dpdirect root directory, type ‘mvn clean install’. The distribution zip file will be built in the ‘target’ directory, e.g. target/dpdirect-distribution.zip’.
-
+To access the full suite of both AMP and SOMA operations, Download AMP SOMA schema files (*.xsd) from the store:// directory on the DP Appliance or Virtual machine, and place in the 'dpdirect/schemas/default' directory.
 
 
 ###SETTING UP:

@@ -23,6 +23,7 @@ If you add the 'dpdirect' dir to your path, you can run anywhere by typing 'dpdi
 Your dev properties file might look like this:
 
   domain=DPESB
+
   hostname=dpappliance01
 
 Any properties set here can be changed from the console - eg  > domain=NEWDOMAIN

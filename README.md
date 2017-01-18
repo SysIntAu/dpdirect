@@ -7,7 +7,7 @@
 
 ###GET THE DISTRIBUTION:
 
-Download the distribution from dist/dpdirect-<version>-deploy.zip , and unzip into a local directory.
+Download the distribution from dist/dpdirect-\<version\>-deploy.zip , and unzip into a local directory.
 
 The user will have immediate access to dpdirect AMP operations, without access to the vast majority SOMA operations. The available operations will support simple configuration and deployment functions.
 

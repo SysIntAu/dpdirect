@@ -28,6 +28,13 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<directory>src\main\resources\default_schema</directory>
+			<outputDirectory>dpdirect\schemas</outputDirectory>
+			<includes>
+				<include>**/**</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>target</directory>
 			<outputDirectory>dpdirect</outputDirectory>
 			<includes>

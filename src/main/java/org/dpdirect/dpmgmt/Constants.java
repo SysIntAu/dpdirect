@@ -40,42 +40,12 @@ public class Constants {
       /**
     * Local resource path of the DataPower SOMA and AMP version 8.0 XML schemas.
     */
-   public static final String MGMT_80_SCHEMAS_DIR = "/datapower/8.0/mgmt/";
-   
-      /**
-    * Local resource path of the DataPower SOMA and AMP version 7.0 XML schemas.
-    */
-   public static final String MGMT_70_SCHEMAS_DIR = "/datapower/7.0/mgmt/";
-   
-      /**
-    * Local resource path of the DataPower SOMA and AMP version 6.0 XML schemas.
-    */
-   public static final String MGMT_60_SCHEMAS_DIR = "/datapower/6.0/mgmt/";
+   public static final String MGMT_SCHEMAS_DIR = "/schemas/";
    
    /**
-    * Local resource path of the DataPower SOMA and AMP version 5.0 XML schemas.
+    * Local resource path of the DataPower Apache licenced SOMA XML schemas.
     */
-   public static final String MGMT_50_SCHEMAS_DIR = "/datapower/5.0/mgmt/";
-
-   /**
-    * Local resource path of the DataPower SOMA and AMP version 4.0 XML schemas.
-    */
-   public static final String MGMT_40_SCHEMAS_DIR = "/datapower/4.0/mgmt/";
-
-   /**
-    * Local resource path of the DataPower SOMA and AMP version 4.0 XML schemas.
-    */
-   public static final String MGMT_30_SCHEMAS_DIR = "/datapower/3.0/mgmt/";
-   
-   /**
-    * Local resource path of the DataPower SOMA 2004 XML schemas.
-    */
-   public static final String MGMT_2004_SCHEMAS_DIR = "/datapower/2004/mgmt/";
-   
-   /**
-    * Local resource path of the DataPower SOMA 2004 XML schemas.
-    */
-   public static final String MGMT_DEFAULT_SCHEMAS_DIR = "/datapower/default/mgmt/";
+   public static final String MGMT_DEFAULT_SCHEMAS_DIR = "/schemas/default/";
 
    /**
     * Name of the "xml-mgmt-ops.xsd" SOMA XML Management schema.
@@ -83,7 +53,17 @@ public class Constants {
    public static final String SOMA_MGMT_SCHEMA_NAME = "xml-mgmt-ops.xsd";
 
    /**
-    * Name of the "app-mgmt-protocol.xsd" AMP XML Management schema.
+    * Name of the "app-mgmt-protocol.xsd" AMP XML Management schema 2004.
+    */
+   public static final String SOMA_MGMT_2004_SCHEMA_NAME = "xml-mgmt-2004.xsd";
+   
+   /**
+    * Local resource path of the Apache licenced DataPower AMP XML schema.
+    */
+   public static final String SOMA_MGMT_DEFAULT_SCHEMA_PATH = MGMT_DEFAULT_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
+   
+   /**
+    * Name of the "app-mgmt-protocol.xsd" AMP XML Management schema V3.0.
     */
    public static final String AMP_MGMT_30_SCHEMA_NAME = "app-mgmt-protocol.xsd";
 
@@ -95,102 +75,13 @@ public class Constants {
    /**
     * Name of the "app-mgmt-protocol" AMP XML Management schema as of DP Release 5.0.
     */
-   public static final String AMP_MGMT_50_SCHEMA_NAME = "app-mgmt-protocol-v3.xsd";
-   
-   /**
-    * Name of the "app-mgmt-protocol" AMP XML Management schema as of DP Release 6.0.
-    */
-   public static final String AMP_MGMT_60_SCHEMA_NAME = "app-mgmt-protocol-v3.xsd";
-     
-   /**
-    * Name of the "app-mgmt-protocol" AMP XML Management schema as of DP Release 7.0.
-    */
-   public static final String AMP_MGMT_70_SCHEMA_NAME = "app-mgmt-protocol-v3.xsd";
-   
-   /**
-    * Name of the "app-mgmt-protocol" AMP XML Management schema as of DP Release 8.0.
-    */
-   public static final String AMP_MGMT_80_SCHEMA_NAME = "app-mgmt-protocol-v3.xsd";
-   
-   /**
-    * Name of the Apache licenced "app-mgmt-protocol" AMP XML Management schema.
-    */
    public static final String AMP_MGMT_DEFAULT_SCHEMA_NAME = "app-mgmt-protocol-v3.xsd";
 
-   /**
-    * Name of the "app-mgmt-protocol.xsd" AMP XML Management schema.
-    */
-   public static final String SOMA_MGMT_2004_SCHEMA_NAME = "xml-mgmt-2004.xsd";
-   
-   /**
-    * Local resource path of the DataPower SOMA 4.0.0 XML schema.
-    */
-   public static final String SOMA_MGMT_30_SCHEMA_PATH = MGMT_30_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
-    
-   /**
-    * Local resource path of the DataPower SOMA 4.0.0 XML schema.
-    */
-   public static final String SOMA_MGMT_40_SCHEMA_PATH = MGMT_40_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
-   
-   /**
-    * Local resource path of the DataPower SOMA 5.0.0 XML schema.
-    */
-   public static final String SOMA_MGMT_50_SCHEMA_PATH = MGMT_50_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
-  
-   /**
-    * Local resource path of the DataPower SOMA 6.0.0 XML schema.
-    */
-   public static final String SOMA_MGMT_60_SCHEMA_PATH = MGMT_60_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
-  
-   /**
-    * Local resource path of the DataPower SOMA 7.0.0 XML schema.
-    */
-   public static final String SOMA_MGMT_70_SCHEMA_PATH = MGMT_70_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
-  
-   /**
-    * Local resource path of the DataPower SOMA 8.0.0 XML schema.
-    */
-   public static final String SOMA_MGMT_80_SCHEMA_PATH = MGMT_80_SCHEMAS_DIR + SOMA_MGMT_SCHEMA_NAME;
-
-   /**
-    * Local resource path of the DataPower AMP 4.0.0 XML schema.
-    */
-   public static final String AMP_MGMT_30_SCHEMA_PATH = MGMT_30_SCHEMAS_DIR + AMP_MGMT_30_SCHEMA_NAME;
-   
-   /**
-    * Local resource path of the DataPower AMP 4.0.0 XML schema.
-    */
-   public static final String AMP_MGMT_40_SCHEMA_PATH = MGMT_40_SCHEMAS_DIR + AMP_MGMT_40_SCHEMA_NAME;
- 
-   /**
-    * Local resource path of the DataPower AMP 5.0.0 XML schema.
-    */
-   public static final String AMP_MGMT_50_SCHEMA_PATH = MGMT_50_SCHEMAS_DIR + AMP_MGMT_50_SCHEMA_NAME;
- 
-   /**
-    * Local resource path of the DataPower AMP 6.0.0 XML schema.
-    */
-   public static final String AMP_MGMT_60_SCHEMA_PATH = MGMT_60_SCHEMAS_DIR + AMP_MGMT_60_SCHEMA_NAME;
-   
-   /**
-    * Local resource path of the DataPower AMP 7.0.0 XML schema.
-    */
-   public static final String AMP_MGMT_70_SCHEMA_PATH = MGMT_70_SCHEMAS_DIR + AMP_MGMT_70_SCHEMA_NAME;
-   
-   /**
-    * Local resource path of the DataPower AMP 8.0.0 XML schema.
-    */
-   public static final String AMP_MGMT_80_SCHEMA_PATH = MGMT_80_SCHEMAS_DIR + AMP_MGMT_80_SCHEMA_NAME;
-     
    /**
     * Local resource path of the Apache licenced DataPower AMP XML schema.
     */
    public static final String AMP_MGMT_DEFAULT_SCHEMA_PATH = MGMT_DEFAULT_SCHEMAS_DIR + AMP_MGMT_DEFAULT_SCHEMA_NAME;
- 
-   /**
-    * Local resource path of the SOMA 2004 XML schema.
-    */
-   public static final String SOMA_MGMT_2004_SCHEMA_PATH = MGMT_2004_SCHEMAS_DIR + SOMA_MGMT_2004_SCHEMA_NAME;
+
    
    /**
     * The relative service endpoint URL for the "SOMA" management API endpoint.
@@ -221,29 +112,9 @@ public class Constants {
     * The relative service endpoint URL for the "AMP" 4.0 management API endpoint.
     */
    public static final String AMP_MGMT_40_URL = "/service/mgmt/amp/2.0";
-   
+
    /**
-    * The relative service endpoint URL for the "AMP" 5.0 management API endpoint.
-    */
-   public static final String AMP_MGMT_50_URL = "/service/mgmt/amp/3.0";
-  
-   /**
-    * The relative service endpoint URL for the "AMP" 6.0 management API endpoint.
-    */
-   public static final String AMP_MGMT_60_URL = "/service/mgmt/amp/3.0";
-  
-   /**
-    * The relative service endpoint URL for the "AMP" 7.0 management API endpoint.
-    */
-   public static final String AMP_MGMT_70_URL = "/service/mgmt/amp/3.0";
-  
-   /**
-    * The relative service endpoint URL for the "AMP" 8.0 management API endpoint.
-    */
-   public static final String AMP_MGMT_80_URL = "/service/mgmt/amp/3.0";
- 
-   /**
-    * The relative service endpoint URL for the Apache licenced "AMP" management API endpoint.
+    * The relative service endpoint URL for the Apache licenced "AMP" management API endpoint - as ov V5.0.
     */
    public static final String AMP_MGMT_DEFAULT_URL = "/service/mgmt/amp/3.0";
 

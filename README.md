@@ -21,10 +21,10 @@ You can either put your credentials into a _netrc file in your H:/ dir (recommen
 If you add the 'dpdirect' dir to your path, you can run anywhere by typing 'dpdirect DEV' - in this case the param DEV refering to a particular properties file eg. 'DEV.properties' in the dpdirect dir. ’dpdirect ENV1’ would refer to a properties file named ‘ENV1.properties’.
 
 Your dev properties file might look like this:
-
+```
   domain=DPESB
   hostname=dpappliance01
-
+```
 Any properties set here can be changed from the console - eg  > domain=NEWDOMAIN
 
 
@@ -32,21 +32,24 @@ Any properties set here can be changed from the console - eg  > domain=NEWDOMAIN
 
 The 'find' function will help you construct a command.
 'find filestore' will give you a look at the SOMA structure
-
+```
   DPDirect> find filestore
   # Sample XML:
+```
+```XML
   <man:request domain="?" xmlns:man="http://www.datapower.com/schemas/management">
       <man:get-filestore annotated="?" layout-only="?" location="?" no-subdirectories="?"/>
   </man:request>
-
+```
+```
   # Valid 'location' attribute values:
   local:, store:, export:, cert:, sharedcert:, pubcert:, image:, config:, chkpoints:, logtemp:,
   logstore:, temporary:, tasktemplates:
-
+```
 So the command is get-filestore, and should include mandatory children and attributes. Not all attributes are mandatory.
-In this case, you will need as a minimum: > get-filestore location=pubcert:
+In this case, it will suffice to enter at the cmd-line: > get-filestore location=pubcert:
 
-'set-file' and 'get-file' will take a srcFile=<path> and destFile=<path> param respectively... this will encode and decode the base64 payload and save to the file system.
+'set-file' and 'get-file' will take a srcFile={path} and destFile={path} param respectively... this will encode and decode the base64 payload and save to the file system.
 
 'set-dir' will copy a directoy to the device. Custom attributes srcDir (local dir) and destDir (in the format 'local:///path')
 
@@ -56,7 +59,7 @@ In this case, you will need as a minimum: > get-filestore location=pubcert:
 
 'get-status' without arguments will display all objects whos status is not currently 0x00000000.
 
-'tail-count' is experimental. 'tail-count name=<mpgname> class=MultiProtocolGateway' will monitor the traffic count through the named mpg. It will clean up the temproary monitor when you exit (hit enter).
+'tail-count' is experimental. 'tail-count name={mpgname} class=MultiProtocolGateway' will monitor the traffic count through the named mpg. It will clean up the temproary monitor when you exit (hit enter).
 
 
 

@@ -86,7 +86,7 @@ public class DPDirectBase implements DPDirectInterface {
 	/** 
 	 * Default firmware level - determines SOMA and AMP version. 
 	 */
-	public static int DEFAULT_FIRMWARE_LEVEL = 4;
+	public static int DEFAULT_FIRMWARE_LEVEL = 5;
 	
 	/** 
 	 * Default waitTime - determines wait time when polling for a result. 
@@ -116,6 +116,7 @@ public class DPDirectBase implements DPDirectInterface {
 
 	/** Nominated firmware level - determines SOMA and AMP version. */
 	protected int firmwareLevel = DEFAULT_FIRMWARE_LEVEL;
+	protected String userFirmwareLevel = "default";
 
 	/**
 	 * Date formatter object configured with 'yyyyMMddhhmmss' format. Caller
@@ -327,107 +328,44 @@ public class DPDirectBase implements DPDirectInterface {
 	public void setSchema() {
 		try {
 			if (schemaLoaderList.isEmpty()) {
-				if (firmwareLevel == 2004) {
+				if (firmwareLevel == 0) {
 					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_2004_SCHEMA_PATH)
+							.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
 							.toExternalForm()));
 					log.debug("SOMAInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());
 
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_30_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-				} else if (firmwareLevel == 0) {
 					schemaLoaderList.add(new SchemaLoader(this.getClass()
 							.getResource(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)
 							.toExternalForm()));
 					log.debug("AMPInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());
-				} else if (firmwareLevel == 8) {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_80_SCHEMA_PATH)
+				} else if (firmwareLevel >= 3) {
+				    schemaLoaderList.add(new SchemaLoader(this.getClass()
+							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel + '/')
 							.toExternalForm()));
 					log.debug("SOMAInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());
 
 					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_80_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-				} else if (firmwareLevel == 7) {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_70_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_70_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-				} else if (firmwareLevel == 6) {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_60_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_60_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-				} else if (firmwareLevel == 5) {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_50_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_50_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-				} else if (firmwareLevel == 4) {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_40_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_40_SCHEMA_PATH)
+							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel + '/')
 							.toExternalForm()));
 					log.debug("AMPInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());
 				} else {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_40_SCHEMA_PATH)
+										schemaLoaderList.add(new SchemaLoader(this.getClass()
+							.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
 							.toExternalForm()));
 					log.debug("SOMAInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());
 
 					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_30_SCHEMA_PATH)
+							.getResource(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)
 							.toExternalForm()));
 					log.debug("AMPInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
@@ -452,42 +390,29 @@ public class DPDirectBase implements DPDirectInterface {
 		try {
 			if (Constants.SOMA_MGMT_2004_SHORT.equalsIgnoreCase(schemaPath)) {
 				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.SOMA_MGMT_50_SCHEMA_PATH)
+						.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
 						.toExternalForm()));
 				log.debug("Added schemaURI : "
 						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 								.getSchemaURI());
-			} else if (schemaPath.startsWith("4")) {
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.AMP_MGMT_40_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI());
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.SOMA_MGMT_40_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI() + "\n");
-			} else if (schemaPath.startsWith("5")) {
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.AMP_MGMT_50_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI());
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.SOMA_MGMT_50_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI() + "\n");
 			} else {
-				schemaLoaderList.add(0, new SchemaLoader(schemaPath));
+				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
+						.getResource(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)
+						.toExternalForm()));
 				log.debug("Added schemaURI : "
 						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 								.getSchemaURI());
+				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
+						.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
+						.toExternalForm()));
+				log.debug("Added schemaURI : "
+						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
+								.getSchemaURI() + "\n");
+//			} else {
+//				schemaLoaderList.add(0, new SchemaLoader(schemaPath));
+//				log.debug("Added schemaURI : "
+//						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
+//								.getSchemaURI());
 			}
 		} catch (Exception ex) {
 			if (!failOnError && !log.isDebugEnabled()) {
@@ -1397,7 +1322,9 @@ public class DPDirectBase implements DPDirectInterface {
 	@Override
 	public void setFirmware(String firmwareLevel) {
 		int intLevel = DEFAULT_FIRMWARE_LEVEL;
-		if (firmwareLevel.startsWith("8")) {
+		if (firmwareLevel.startsWith("default")) {
+			intLevel = 0;
+		} else if (firmwareLevel.startsWith("8")) {
 			intLevel = 8;
 		} else if (firmwareLevel.startsWith("7")) {
 			intLevel = 7;
@@ -1409,11 +1336,12 @@ public class DPDirectBase implements DPDirectInterface {
 			intLevel = 4;
 		} else if (firmwareLevel.startsWith("3")) {
 			intLevel = 3;
-		} else if (firmwareLevel.startsWith("default")) {
-			intLevel = 0;
 		} else if (firmwareLevel.startsWith("2004")) {
 			intLevel = 2004;
+		} else if (firmwareLevel.startsWith("default")) {
+			intLevel = 0;
 		}
+		this.userFirmwareLevel = firmwareLevel;
 		this.firmwareLevel = intLevel;
 	}
 
@@ -1643,40 +1571,22 @@ public class DPDirectBase implements DPDirectInterface {
 		public void defineEndPoint(SchemaLoader loader) {
 			if (null == this.getEndPoint()) {
 				String schemaPath = loader.getSchemaFileURI();
-				if (schemaPath.contains(Constants.SOMA_MGMT_40_SCHEMA_PATH)
-						|| schemaPath
-								.contains(Constants.SOMA_MGMT_50_SCHEMA_PATH)) {
+				if (schemaPath.contains(Constants.SOMA_MGMT_SCHEMA_NAME)) {
 					this.setEndPoint(Constants.SOMA_MGMT_CURRENT_URL);
 					this.isAMP = false;
 				} else if (schemaPath
-						.contains(Constants.SOMA_MGMT_2004_SCHEMA_PATH)) {
+						.contains(Constants.SOMA_MGMT_2004_SCHEMA_NAME)) {
 					this.setEndPoint(Constants.SOMA_MGMT_2004_URL);
 					this.isAMP = false;
 				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_30_SCHEMA_PATH)) {
+						.contains(Constants.AMP_MGMT_30_SCHEMA_NAME)) {
 					this.setEndPoint(Constants.AMP_MGMT_30_URL);
 					this.isAMP = true;
 				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_40_SCHEMA_PATH)) {
+						.contains(Constants.AMP_MGMT_40_SCHEMA_NAME)) {
 					this.setEndPoint(Constants.AMP_MGMT_40_URL);
 				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_50_SCHEMA_PATH)) {
-					this.setEndPoint(Constants.AMP_MGMT_50_URL);
-					this.isAMP = true;
-				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_60_SCHEMA_PATH)) {
-					this.setEndPoint(Constants.AMP_MGMT_60_URL);
-					this.isAMP = true;
-				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_70_SCHEMA_PATH)) {
-					this.setEndPoint(Constants.AMP_MGMT_70_URL);
-					this.isAMP = true;
-				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_80_SCHEMA_PATH)) {
-					this.setEndPoint(Constants.AMP_MGMT_80_URL);
-					this.isAMP = true;
-				} else if (schemaPath
-						.contains(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)) {
+						.contains(Constants.AMP_MGMT_DEFAULT_SCHEMA_NAME)) {
 					this.setEndPoint(Constants.AMP_MGMT_DEFAULT_URL);
 					this.isAMP = true;
 				} else {

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:man="http://www.datapower.com/schemas/management"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  targetNamespace="http://www.datapower.com/schemas/management"
+  elementFormDefault="qualified" 
+  attributeFormDefault="unqualified"
+  version="1.0" xml:lang="en">
+  
+  <!--
+   An extremely lmited hack schema on the SOMA interface.
+   
+   Copyright B. X. Pedient, Licensed under Apache License V2.0
+  -->
+  
+  <xs:element name="request" type="man:requestType"/>
+  
+  <xs:complexType name="requestType">
+    <xs:choice>
+      <xs:element name="do-import" type="man:do-importType"/>
+      <xs:element name="do-action" type="man:do-actionType"/>
+      <xs:element name="get-file" type="man:get-fileType"/>
+      <xs:element name="set-file" type="man:set-fileType"/>
+    </xs:choice>
+    <xs:attribute name="domain" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="do-importType">
+    <xs:sequence>
+      <xs:element name="input-file" type="xs:base64Binary"/>
+      <xs:element name="object" type="man:objectType"/>
+      <xs:element name="file" type="man:fileType"/>
+    </xs:sequence>
+    <xs:attribute name="overwrite-files" type="xs:string" use="optional"/>
+    <xs:attribute name="overwrite-objects" type="xs:string" use="optional"/>
+    <xs:attribute name="source-type" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="objectType">
+    <xs:attribute name="class" type="xs:string" use="optional"/>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="overwrite" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="fileType">
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="overwrite" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="do-actionType">
+    <xs:choice>
+      <xs:element name="SaveConfig" type="xs:token"/>
+      <xs:element name="FlushDocumentCache" type="man:FlushType"/>
+    </xs:choice>
+  </xs:complexType>
+  
+  <xs:complexType name="get-fileType">
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="set-fileType">
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="FlushType">
+    <xs:sequence>
+      <xs:element name="XMLManager" type="man:XMLManagerType"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="XMLManagerType">
+    <xs:attribute name="class" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+</xs:schema>

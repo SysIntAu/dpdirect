@@ -57,15 +57,16 @@
 
 	<!-- Default locations -->
 	<property name="lib.dir"  value="${basedir}/lib"/>
+	<property name="dpdirect.dir"  value="${basedir}/dpdirect"/>
 	
 	<!-- *****************************************************************
 		** Set up the "DPDirect" task library
 		****************************************************************** -->
 	<path id="dpdirect.class.path">
 		<!-- classpath for the dpdirect task -->
-		<pathelement location="dpdirect-1.1.0.jar"/>
-		<pathelement location="${lib.dir}/xercesImpl.jar"/>
-		<pathelement location="${lib.dir}/log4j.jar"/>
+		<pathelement location="${dpdirect.dir}/dpdirect-1.0.5.jar"/>
+		<pathelement location="${dpdirect.dir}/lib/xercesImpl.jar"/>
+		<pathelement location="${dpdirect.dir}/lib/log4j.jar"/>
 	</path>
 	<taskdef name="dpDeploy" classname="org.dpdirect.dpmgmt.DPDirectTask" classpathref="dpdirect.class.path"/>
 	

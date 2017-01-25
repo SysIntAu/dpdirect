@@ -102,30 +102,12 @@ Adding the ‘dpdirect’ dir to your PATH variable will enable you to run dpdirectf
 
 The 'find' function will help you construct a command, and demonstrate the target AMP and SOMA XML structure constructed and posted by the utility.
 
-'find filestore' will give you a look at the SOMA structure
+'find get-status' will give you a look at the SOMA structure
 ```
-  DPDirect> find filestore
+  DPDirect> find get-status
   # Sample XML:
 ```
 ```XML
-  <man:request domain="?" xmlns:man="http://www.datapower.com/schemas/management">
-      <man:get-filestore annotated="?" layout-only="?" location="?" no-subdirectories="?"/>
-  </man:request>
-```
-```
-  # Valid 'location' attribute values:
-  local:, store:, export:, cert:, sharedcert:, pubcert:, image:, config:, chkpoints:, logtemp:,
-  logstore:, temporary:, tasktemplates:
-```
-So the command is 'get-filestore', and should include mandatory children and attributes. Not all attributes are mandatory.
-In this case, it will suffice to enter at the cmd-line: 
-```
-> get-filestore location=local:
-```
-
-'find get-status' will display
-```
-# Sample XML:
 <man:request domain="?" xmlns:man="http://www.datapower.com/schemas/management">
     <man:get-status class="?"/>
 </man:request>
@@ -135,7 +117,12 @@ Together with a vast array of enumerated objects:
 # Valid 'class' attribute values:
 ActiveUsers, ARPStatus, Battery, ConnectionsAccepted, CPUUsage, CryptoEngineStatus, CurrentSensors, DateTimeStatus, DNSCacheHostStatus, DNSCacheHostStatus2, DNSNameServerStatus, DNSNameServerStatus2, DNSSearchDomainStatus, DNSStaticHostStatus, DocumentCachingSummary, DocumentStatus, DocumentStatusSimpleIndex, DomainCheckpointStatus, DomainsMemoryStatus, DomainStatus, DomainSummary...
 ```
-when issued WITHOUT a 'class=...' identifier, the get-status command will return all 'ObjectStatus' statii that do NOT return an EventCode of '0x00000000'.
+So the command is 'get-status', and should include mandatory children and attributes. Not all attributes are mandatory.
+In this case, it will suffice to enter at the cmd-line: 
+```
+DPDirect> get-status
+```
+'get-status' without arguments will display all objects who's status is not currently 0x00000000.
 ```
 DPDirect> get-status
 Class: Statistics, OpState: down, AdminState: disabled
@@ -154,8 +141,6 @@ Class: NFSDynamicMounts, OpState: down, AdminState: disabled
 'get-dir' will copy a directoy from the device to the local File system. Custom attributes destDir (local dir) and srcDir (in the format 'local:///path')
 
 'tail-log' operation will tail the default log. To exit, hit enter.
-
-'get-status' without arguments will display all objects whos status is not currently 0x00000000.
 
 'tail-count' is experimental. 'tail-count name={mpgname} class=MultiProtocolGateway' will monitor the traffic count through the named mpg. It will clean up the temproary monitor when you exit (hit enter).
 

@@ -9,7 +9,7 @@
   <!--
    An extremely lmited hack schema on the SOMA interface.
    
-   Copyright B. X. Pedient, Licensed under Apache License V2.0
+   Licensed under Apache License V2.0
   -->
   
   <xs:element name="request" type="man:requestType"/>
@@ -20,6 +20,8 @@
       <xs:element name="do-action" type="man:do-actionType"/>
       <xs:element name="get-file" type="man:get-fileType"/>
       <xs:element name="set-file" type="man:set-fileType"/>
+      <xs:element name="get-filestore" type="man:get-filestoreType"/>
+      <xs:element name="get-status" type="man:get-statusType"/>
     </xs:choice>
     <xs:attribute name="domain" type="xs:string" use="optional"/>
   </xs:complexType>
@@ -69,6 +71,15 @@
   
   <xs:complexType name="XMLManagerType">
     <xs:attribute name="class" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="get-statusType">
+    <xs:attribute name="class" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
+  <xs:complexType name="get-filestoreType">
+    <xs:attribute name="layout-only" type="xs:string" use="optional"/>
+    <xs:attribute name="location" type="xs:string" use="required"/>
   </xs:complexType>
   
 </xs:schema>

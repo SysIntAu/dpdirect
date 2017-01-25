@@ -3,20 +3,20 @@
 
 ####The complete DataPower SOMA and AMP configuration utility
 
-The dpdirect utility is a compact, maintainable java based utility that gives the DP admin and developer full access to each and every AMP and SOMA command, acccessible from command line, as an ant task, or via a myriad of scripting languages. 
+The dpdirect utility is a compact, maintainable java based utility that gives the DP admin and developer full access to each and every AMP and SOMA command, acccessible as a console, as an ant task, from command line, and via a myriad of scripting languages. 
+
+dpdirect also functions as a SOMA/AMP reference, enabling the user to search for and pretty-print XML samples of SOMA and AMP operations.
 
 ###GET THE DISTRIBUTION:
 
-Download the distribution from dist/dpdirect-{version}-deploy.zip , and unzip into a local directory - the package will unzipinto its own 'dpdirect' dir.
+Download the distribution from dist/dpdirect-{version}-deploy.zip or use the following URL:
+https://github.com/mqsysadmin/dpdirect/raw/master/dist/dpdirect-1.0.5-deploy.zip
+
+Unzip into a local directory - the package will unzipinto its own 'dpdirect' dir.
 
 
 ###SETTING UP:
 
-####Download DP SOMA and AMP Schemas
-
-The user will have immediate access to dpdirect AMP operations, without access to the vast majority SOMA operations. The available operations will support simple configuration and deployment functions.
-
-To access the full suite of both AMP and SOMA operations, Download AMP SOMA schema files (*.xsd) from the store:// directory on the DP Appliance or Virtual machine, and place in the 'dpdirect/schemas/default' directory.
 
 ####Credentials ('_netrc' file)
 
@@ -35,12 +35,12 @@ machine DPDevice02 login MYLOGIN password MyPass2
 ```
 Alternatively, but not recommended beyond a sandpit environment, credentials may be provided via the environment properties file in the format:
 ```
-Username=devUser
-Password=devPassWord
+userName=devUser
+userPassword=devPassWord
 ``` 
 or in the absence of an environment properties file, provided via command line arguments, eg:
 ```
-> dpdirect hostname=soaserv01 Username=EFGRTT Password=droWssaP
+> dpdirect hostname=soaserv01 userName=devUser userPassword=devPassWord
 ```
 
 
@@ -57,6 +57,25 @@ Any properties set here can be changed from the dpdirect console - eg
 ```
 dpdirect> domain=NEWDOMAIN
 ```
+
+
+####Download the IBM SOMA and AMP Schemas from the DP Appliance
+
+The user will have immediate access to dpdirect AMP operations, without access to the vast majority SOMA operations. The available operations will support simple configuration and deployment functions.
+
+To access the full suite of both AMP and SOMA operations, Download AMP SOMA schema files (*.xsd) from the store:// directory on the DP Appliance or Virtual machine, and place in the 'dpdirect/schemas/default' directory.
+Use the Web GUI, or perform the following commands from the dpdirect directory.
+```
+dpdirect DEV operation=get-file name=store://app-mgmt-protocol-v3.xsd > ./schemas/download/app-mgmt-protocol-v3.xsd
+dpdirect DEV operation=get-file name=store://xml-mgmt.xsd > ./schemas/download/xml-mgmt.xsd
+dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
+dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
+```
+
+####Enable the XML Management Interface
+
+Via the Web-GUI, type 'XML Management' into the search bar, and select 'XML Management Interface'. Select the 'enable' button, and save config. 
+See the IBM notes at http://www.ibm.com/support/knowledgecenter/SS9H2Y_7.5.0/com.ibm.dp.doc/xmi_interfaceservices_enabling.html for more detail on XML Management Interface security.
 
 
 ###CONSOLE QUICK START:
@@ -133,8 +152,8 @@ Global Options (must precede any SOMA or AMP operations).
 name=value pairs may include:
 ```
 	hostname=<aHostname>	(reqired, cmdLine or properties file)
-	Username=<DPusername>	(optional, .netrc or _netrc file, cmdLine, prop file or prompt)
-	Password=<DPpassword>	(optional, .netrc or _netrc file, cmdLine, prop file or prompt)
+	userName=<DPusername>	(optional, .netrc or _netrc file, cmdLine, prop file or prompt)
+	userPassword=<DPpassword>	(optional, .netrc or _netrc file, cmdLine, prop file or prompt)
 	port=<aPort>			(default is '5550')
 	domain=<aDomainName>		(default for following operations)
 	failOnError=<trueOrFalse>		(default is 'true')

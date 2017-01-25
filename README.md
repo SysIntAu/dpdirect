@@ -131,6 +131,15 @@ Class: Statistics, OpState: down, AdminState: disabled
 Class: NFSDynamicMounts, OpState: down, AdminState: disabled
  Name: nfs-dynamic-mounts, EventCode: 0x0034000d, ErrorCode: Object is disabled, ConfigState: saved
 ```
+The 'find' function will return operations on partial entries, for example the cmd:
+```
+  DPDirect> find flush
+```
+will return various flush cache operations, while
+```
+  DPDirect> find quiesce
+```
+will return details of several quiesce related operations.
 
 ####Custom Operations
 

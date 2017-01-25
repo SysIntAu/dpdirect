@@ -3,6 +3,7 @@
 
 ####The complete DataPower SOMA and AMP configuration utility
 
+
 The dpdirect utility is a compact, maintainable java based utility that gives the DP admin and developer full access to each and every AMP and SOMA command, acccessible as a console, as an ant task, from command line, and via a myriad of scripting languages. 
 
 dpdirect also functions as a SOMA/AMP reference, enabling the user to search for and pretty-print XML samples of SOMA and AMP operations.

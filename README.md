@@ -216,23 +216,37 @@ CMDLINE example:
       Note: an 'Operation' must correspond to a valid SOMA or AMP request element, 
             OR a custom dpdirect operation as follows.
       
-Custom Operations: 
-'tail-log', 'set-dir' and 'get-dir' are custom operations not catered for in the base schema.
+####Custom Operations: 
 
-tail-log takes an optional 'name' parameter (name of the log file - default is 'default-log') 
+'tail-log', 'set-dir' and 'get-dir' are custom operations not catered for in the base schema.
+tail-log takes an optional 'name' parameter (name of the log file - default is 'default-log'). 
 optional 'filter' and 'filterOut' parameters to filter lines based on whether the given string is contained, and 
 an optional 'lines' parameter (starting lines - default is 12).
-	Eg.  tail-log filter=mq lines=30
+	Eg.  
+```
+	tail-log filter=mq lines=30
+```
+
 get-status - when issued WITHOUT a 'class=...' identifier, the get-status command will return all 'ObjectStatus' statii that do NOT return an EventCode of '0x00000000', or optionally 
 specify 'filter' and/or 'filterOut' parameters to filter lines based on whether the given string is contained.
-	Eg. get-status filter=MultiProtocolGateway filterOut=0x00000000|disabled
+	Eg. 
+```
+	get-status filter=MultiProtocolGateway filterOut=0x00000000|disabled
+```
+
 get-dir and set-dir take 'srcDir' and 'destDir' params in their native dest and src dir formats.
 	
-Custom Options: 
+####Custom Options: 
+
 srcFile - The value of an option is set to the base64 encoded content of the named file.  It is the source of any base64 payload uploaded to the device, such as set-file and do-import. 
+
 destFile - The datapower response will be base64 decoded and saved to the named path. It is the destination of any base64 payload downloaded from the device, such as get-file and do-export. 
+
 filter and filterOut - will filter tail-log, get-status and get-log output. 
-endPoint - Rarely but occasionally a SOMA operation requires posting to the 2004 endpoint. 'endPoint=2004' will alter the XMLManagement end-point. Other options are 'AMP', 'SOMA', or a manually constructed relative path, eg '/service/mgmt/amp/1.0'.
+
+endPoint - Rarely but occasionally a SOMA operation requires posting to the 2004 endpoint. 'endPoint=2004' will alter the XMLManagement end-point. 
+
+Other options are 'AMP', 'SOMA', or a manually constructed relative path, eg '/service/mgmt/amp/1.0'.
 
 
 ###Ant-Task

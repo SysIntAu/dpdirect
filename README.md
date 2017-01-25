@@ -67,8 +67,8 @@ To access the full suite of both AMP and SOMA operations, Download AMP SOMA sche
 Use the Web GUI, or perform the following commands from the dpdirect directory:
 ```
 dpdirect DEV operation=get-file name=store://app-mgmt-protocol-v3.xsd > ./schemas/download/app-mgmt-protocol-v3.xsd
+dpdirect DEV operation=get-file name=store://xml-mgmt-base.xsd > ./schemas/download/xml-mgmt-base.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt.xsd > ./schemas/download/xml-mgmt.xsd
-dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
 ```
 Copy over the downloaded files from the schema/download file to the schema/default directory, over-writing the current schemas. 

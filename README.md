@@ -69,9 +69,11 @@ Use the Web GUI, or perform the following commands from the dpdirect directory:
 dpdirect DEV operation=get-file name=store://app-mgmt-protocol-v3.xsd > ./schemas/download/app-mgmt-protocol-v3.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt-base.xsd > ./schemas/download/xml-mgmt-base.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt.xsd > ./schemas/download/xml-mgmt.xsd
+dpdirect DEV operation=get-file name=store://xml-mgmt-b2b.xsd > ./schemas/download/xml-mgmt-b2b.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
 ```
-Copy over the downloaded files from the schema/download file to the schema/default directory, over-writing the current schemas. 
+Copy over the downloaded files from the schema/download directory to the schema/default directory, over-writing the current schemas. 
+
 
 ####Enable the XML Management Interface
 
@@ -118,8 +120,32 @@ The 'find' function will help you construct a command, and demonstrate the targe
 So the command is 'get-filestore', and should include mandatory children and attributes. Not all attributes are mandatory.
 In this case, it will suffice to enter at the cmd-line: 
 ```
-> get-filestore location=pubcert:
+> get-filestore location=local:
 ```
+
+'find get-status' will display
+```
+# Sample XML:
+<man:request domain="?" xmlns:man="http://www.datapower.com/schemas/management">
+    <man:get-status class="?"/>
+</man:request>
+```
+Together with a vast array of enumerated objects:
+```
+# Valid 'class' attribute values:
+ActiveUsers, ARPStatus, Battery, ConnectionsAccepted, CPUUsage, CryptoEngineStatus, CurrentSensors, DateTimeStatus, DNSCacheHostStatus, DNSCacheHostStatus2, DNSNameServerStatus, DNSNameServerStatus2, DNSSearchDomainStatus, DNSStaticHostStatus, DocumentCachingSummary, DocumentStatus, DocumentStatusSimpleIndex, DomainCheckpointStatus, DomainsMemoryStatus, DomainStatus, DomainSummary...
+```
+when issued WITHOUT a 'class=...' identifier, the get-status command will return all 'ObjectStatus' statii that do NOT return an EventCode of '0x00000000'.
+```
+DPDirect> get-status
+Class: Statistics, OpState: down, AdminState: disabled
+ Name: statistics, EventCode: 0x0034000d, ErrorCode: Object is disabled, ConfigState: saved
+
+Class: NFSDynamicMounts, OpState: down, AdminState: disabled
+ Name: nfs-dynamic-mounts, EventCode: 0x0034000d, ErrorCode: Object is disabled, ConfigState: saved
+```
+
+####Custom Operations
 
 'set-file' and 'get-file' will take a srcFile={path} and destFile={path} param respectively... this will encode and decode the base64 payload and save to the file system.
 
@@ -196,7 +222,7 @@ CHOICE: you may hit enter for console mode. Console mode allows one operation at
                     
 CONSOLE example: 
 ```
-> dpdirect hostname=soaserv01 userName=EFGRTT userPassword=droWssaP
+dpdirect> hostname=soaserv01 userName=EFGRTT userPassword=droWssaP
 ```
 CMDLINE example: 
 ```

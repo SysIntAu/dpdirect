@@ -7,9 +7,8 @@
   version="1.0" xml:lang="en">
   
   <!--
-   An extremely lmited hack schema on the SOMA interface.
-   
-   Licensed under Apache License V2.0
+   An extremely limited hack schema on the SOMA interface.
+   Apache License V2.0
   -->
   
   <xs:element name="request" type="man:requestType"/>

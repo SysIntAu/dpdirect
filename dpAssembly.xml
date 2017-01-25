@@ -21,6 +21,13 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<directory>.</directory>
+			<outputDirectory>dpdirect</outputDirectory>
+			<includes>
+				<include>README.md</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>lib</directory>
 			<outputDirectory>dpdirect\lib</outputDirectory>
 			<includes>

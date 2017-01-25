@@ -58,19 +58,19 @@ Any properties set here can be changed from the dpdirect console - eg
 dpdirect> domain=NEWDOMAIN
 ```
 
-
 ####Download the IBM SOMA and AMP Schemas from the DP Appliance
 
 The user will have immediate access to dpdirect AMP operations, without access to the vast majority SOMA operations. The available operations will support simple configuration and deployment functions.
 
 To access the full suite of both AMP and SOMA operations, Download AMP SOMA schema files (*.xsd) from the store:// directory on the DP Appliance or Virtual machine, and place in the 'dpdirect/schemas/default' directory.
-Use the Web GUI, or perform the following commands from the dpdirect directory.
+Use the Web GUI, or perform the following commands from the dpdirect directory:
 ```
 dpdirect DEV operation=get-file name=store://app-mgmt-protocol-v3.xsd > ./schemas/download/app-mgmt-protocol-v3.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt.xsd > ./schemas/download/xml-mgmt.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
 dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/download/xml-mgmt-ops.xsd
 ```
+Copy over the downloaded files from the schema/download file to the schema/default directory, over-writing the current schemas. 
 
 ####Enable the XML Management Interface
 

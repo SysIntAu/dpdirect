@@ -139,6 +139,14 @@ public class DPDirect extends DPDirectBase implements DPDirectInterface {
 			dpSession.sampleOperation(arg1.replace("find=", ""));
 			System.exit(0);
 		}
+		if (arg1.equalsIgnoreCase("show")) {
+			dpSession.sampleOperation(args[1]);
+			System.exit(0);
+		}
+		if (arg1.contains("show=")) {
+			dpSession.sampleOperation(arg1.replace("show=", ""));
+			System.exit(0);
+		}
 
 		for (int i = 0; i < args.length; i++) {
 			String option = (String) args[i];
@@ -256,6 +264,9 @@ public class DPDirect extends DPDirectBase implements DPDirectInterface {
 					int firstIndex = 0;
 					String operationName = newArgs[firstIndex];
 					if (operationName.equalsIgnoreCase("find")
+							&& newArgs[1] != null) {
+						dpSession.sampleOperation(newArgs[1]);
+					} else if (operationName.equalsIgnoreCase("show")
 							&& newArgs[1] != null) {
 						dpSession.sampleOperation(newArgs[1]);
 					} else if (operationName.equalsIgnoreCase("help")) {

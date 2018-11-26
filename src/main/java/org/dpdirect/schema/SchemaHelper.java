@@ -401,26 +401,16 @@ public class SchemaHelper {
     * @param elementDeclaration XSElementDeclaration : the root element
     */
    private void findReference(XSElementDeclaration elementDeclaration) {
-      String elemName = elementDeclaration.getName();
-      String thisContext = elemName;
-      XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+   	  XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+   	  String typeDefName = typeDefinition.getName();
+      String thisContext = elementDeclaration.getName();
       if (null != typeDefinition) {
-         String typeDefName = typeDefinition.getName();
-         currentNodeNames.clear();
-         currentNodeNames.add(elementDeclaration.getName());
-         if (typeDefinition instanceof XSComplexTypeDefinition) {
-            addToSchemaMap(elemName, typeDefName);
-            if (null != typeDefName) {
-               thisContext = typeDefName;
-            }
-            XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
+      	 currentNodeNames.clear();
+      	 if (typeDefinition instanceof XSComplexTypeDefinition) {
+            XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();   
             findReferenceInParticle(thisContext, particle);
-         }
-         else {
-            addToSchemaMap(elemName, typeDefName);
-            if (null != typeDefName) {
-               thisContext = typeDefName;
-            }
+         } else {
+         	  addToSchemaMap(thisContext, typeDefName);
          }
       }
    }
@@ -432,33 +422,24 @@ public class SchemaHelper {
     * @param context the context.
     * @param elementDeclaration the element declaration.
     */
-   private void findElementReference(String context,
-                                     XSElementDeclaration elementDeclaration) {
+   private void findElementReference(String context, XSElementDeclaration elementDeclaration) {
       XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
       if (null != typeDefinition) {
-         String typeDefName = typeDefinition.getName();
-         if (typeDefinition instanceof XSComplexTypeDefinition) {
-            addToSchemaMap(context, typeDefName);
-            if (null != typeDefName) {
-               context = typeDefName;
-            }
-            XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
-            if (currentNodeNames.contains(typeDefName)) {
-               /* circular reference */
-               // currentNodeNames.add(typeDefName);
-               // findReferenceInParticle(context, particle);
-            }
-            else {
-               currentNodeNames.add(typeDefName);
-               findReferenceInParticle(context, particle);
-            }
+      	 String typeDefName = typeDefinition.getName();
+         String elementName = elementDeclaration.getName();
+         addToSchemaMap(context, elementName);
+         if (!(currentNodeNames.contains(elementName))) {
+            currentNodeNames.add(elementName);
          }
-         else {
-            addToSchemaMap(context, typeDefName);
-            if (null != typeDefName) {
-               context = typeDefName;
+         if (typeDefinition instanceof XSComplexTypeDefinition) {
+            XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
+            if (null != particle) {
+               findReferenceInParticle(elementName, particle);
+            } else {
+            	 addToSchemaMap(elementName, typeDefName);
             }
-            currentNodeNames.add(typeDefName);
+         } else { // add to keyset
+            addToSchemaMap(elementName, typeDefName);
          }
       }
    }
@@ -470,8 +451,7 @@ public class SchemaHelper {
     * @param context the context.
     * @param particle the particle.
     */
-   private void findReferenceInParticle(String context,
-                                        XSParticle particle) {
+   private void findReferenceInParticle(String context, XSParticle particle) {
       if (null != particle) {
          XSTerm term = particle.getTerm();
          if (term instanceof XSModelGroup) {
@@ -484,25 +464,19 @@ public class SchemaHelper {
             }
          }
          else if (term instanceof XSElementDeclaration) {
-            String tName = term.getName();
-            addToSchemaMap(context, tName);
-            context = tName;
-            if (currentNodeNames.contains(tName)) {
-               // cyclic reference
-               currentNodeNames.add(tName);
-               findElementReference(context, (XSElementDeclaration) term);
-            }
-            else {
-               currentNodeNames.add(tName);
-               findElementReference(context, (XSElementDeclaration) term);
+            findElementReference(context, (XSElementDeclaration) term);
+         }
+         else { // XSWildcard
+            String termName = term.getName();
+            if (termName != null) {
+               addToSchemaMap(context, termName);
+               if (!(currentNodeNames.contains(termName))) {
+               	  currentNodeNames.add(termName);
+               }
+            } else {
+            	 addToSchemaMap(context, "XSWildcard");
             }
          }
-         // else { // XSWildcard
-         // String tName = term.getName();
-         // if (tName != null) {
-         // addToSchemaTable(aContext, tName);
-         // }
-         // }
       }
    }
 

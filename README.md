@@ -1,14 +1,14 @@
 
-##Welcome to dpdirect##
+## Welcome to dpdirect ## 
 
-####The complete DataPower SOMA and AMP configuration utility
+#### The complete DataPower SOMA and AMP configuration utility ####
 
 
 The dpdirect utility is a compact, maintainable java based utility that gives the DP admin and developer full access to each and every AMP and SOMA command, acccessible as a console, as an ant task, from command line, and via a myriad of scripting languages. 
 
 dpdirect also functions as a SOMA/AMP reference, enabling the user to search for and pretty-print XML samples of SOMA and AMP operations.
 
-###GET THE DISTRIBUTION:
+### GET THE DISTRIBUTION: ###
 
 Download the distribution from dist/dpdirect-{version}-deploy.zip or use the following URL:
 https://github.com/mqsysadmin/dpdirect/raw/master/dist/dpdirect-1.0.5-deploy.zip
@@ -16,10 +16,10 @@ https://github.com/mqsysadmin/dpdirect/raw/master/dist/dpdirect-1.0.5-deploy.zip
 Unzip into a local directory - the package will unzipinto its own 'dpdirect' dir.
 
 
-###SETTING UP:
+### SETTING UP: ###
 
 
-####Credentials ('_netrc' file)
+#### Credentials ('_netrc' file) ####
 
 Credentials should be provided via an optional NETRC file. Windows uses "_netrc" whereas unix uses ".netrc".
 
@@ -45,7 +45,7 @@ or in the absence of an environment properties file, provided via command line a
 ```
 
 
-####The Properties File
+#### The Properties File ####
 
 Typing 'dpdirect DEV' will start the utility with predefined environment properties - in this example the param 'DEV' coresponds to the name a particular properties file - eg. 'DEV.properties' - in the dpdirect dir. 'dpdirect ENV1' would refer to a properties file named 'ENV1.properties'.
 
@@ -59,7 +59,7 @@ Any properties set here can be changed from the dpdirect console - eg
 dpdirect> domain=NEWDOMAIN
 ```
 
-####Download the IBM SOMA and AMP Schemas from the DP Appliance
+#### Download the IBM SOMA and AMP Schemas from the DP Appliance ####
 
 The user will have immediate access to dpdirect AMP operations, without access to the vast majority SOMA operations. The available operations will support simple configuration and deployment functions.
 
@@ -75,30 +75,30 @@ dpdirect DEV operation=get-file name=store://xml-mgmt-ops.xsd > ./schemas/downlo
 Copy over the downloaded files from the schema/download directory to the schema/default directory, over-writing the current schemas. 
 
 
-####Enable the XML Management Interface
+#### Enable the XML Management Interface ####
 
 Via the Web-GUI, type 'XML Management' into the search bar, and select 'XML Management Interface'. Select the 'enable' button, and save config. 
 See the IBM notes at http://www.ibm.com/support/knowledgecenter/SS9H2Y_7.5.0/com.ibm.dp.doc/xmi_interfaceservices_enabling.html for more detail on XML Management Interface security.
 
 
-###CONSOLE QUICK START:
+### CONSOLE QUICK START: ###
 
 To bring up the help page, type one of:
 'dpdirect help' or 'dpdirect help console' or 'dpdirect help ant'.
 
-To open the DPDirect console, cd to the dpdirectdir type 'dpdirect [envName]' – where  ‘envName’ refers to a  properties file eg:
+To open the DPDirect console, cd to the dpdirectdir type 'dpdirect [envName]' â€“ where  â€˜envNameâ€™ refers to a  properties file eg:
 ```
 > dpdirect DEV
 ```
-where the file ‘DEV.properties’ exists in the dpdirectdir.
+where the file â€˜DEV.propertiesâ€™ exists in the dpdirectdir.
 Alternatively provide 'hostname=somename' param at a minimum. 
 ```
 > dpdirect hostname=somename
 ```
-Adding the ‘dpdirect’ dir to your PATH variable will enable you to run dpdirectfrom any location.
+Adding the â€˜dpdirectâ€™ dir to your PATH variable will enable you to run dpdirectfrom any location.
 
 
-###STUFF TO TRY:
+### STUFF TO TRY: ###
 
 The 'find' function will help you construct a command, and demonstrate the target AMP and SOMA XML structure constructed and posted by the utility.
 
@@ -154,21 +154,21 @@ will return details of several quiesce related operations.
 'tail-count' is experimental. 'tail-count name={mpgname} class=MultiProtocolGateway' will monitor the traffic count through the named mpg. It will clean up the temproary monitor when you exit (hit enter).
 
 
-###dpdirect Command Line Usage
+### dpdirect Command Line Usage ###
       
-####Help: 
+#### Help: ####
 'dpdirect help' returns this page.
 'dpdirect help console' returns console specific help.
 'dpdirect help ant' returns help on using dpdirect as an ant task.
 'dpdirect find <regex>' returns sample XML for any operation matching the given regex,     Eg. 'dpdirect find .*[Cc]hange.*', or containing the given word, Eg. 'dpdirect find change' . The sample XML will indicate the attributes and values that may be set for an operation. Be aware that most attributes and values will be optional.
 
-####Properties file (optional)
+#### Properties file (optional) ####
 The FIRST parameter may name a properties file containing global options
 The properties must reside next to the dpdirect jar file and take the form <name>.properties 
 It is not necessary to include the .properties extension at the cmd-line
 Eg. dpdirect DEV ...
       
-####Global/Deployment options (optional)
+#### Global/Deployment options (optional) ####
 Global Options (must precede any SOMA or AMP operations).
 name=value pairs may include:
 ```
@@ -186,7 +186,7 @@ name=value pairs may include:
 ``` 
          Eg. dpdirect DEV ...
       
-####Command Line vs Console
+#### Command Line vs Console ####
 
 CHOICE: you may hit enter for console mode. Console mode allows one operation at a time.
  
@@ -225,7 +225,7 @@ CMDLINE example:
       Note: an 'Operation' must correspond to a valid SOMA or AMP request element, 
             OR a custom dpdirect operation as follows.
       
-####Custom Operations: 
+#### Custom Operations: ####
 
 'tail-log', 'set-dir' and 'get-dir' are custom operations not catered for in the base schema.
 tail-log takes an optional 'name' parameter (name of the log file - default is 'default-log'). 
@@ -245,7 +245,7 @@ specify 'filter' and/or 'filterOut' parameters to filter lines based on whether 
 
 get-dir and set-dir take 'srcDir' and 'destDir' params in their native dest and src dir formats.
 	
-####Custom Options: 
+#### Custom Options: ####
 
 srcFile - The value of an option is set to the base64 encoded content of the named file.  It is the source of any base64 payload uploaded to the device, such as set-file and do-import. 
 
@@ -258,7 +258,7 @@ endPoint - Rarely but occasionally a SOMA operation requires posting to the 2004
 Other options are 'AMP', 'SOMA', or a manually constructed relative path, eg '/service/mgmt/amp/1.0'.
 
 
-###Ant-Task
+### Ant-Task ###
 
 Please refer to the text file 'ant-usage.txt' and the ant xml file 'dptask_example.xml' for ant task guidance.
 

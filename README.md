@@ -141,7 +141,7 @@ will return various flush cache operations, while
 ```
 will return details of several quiesce related operations.
 
-####Custom Operations
+#### Custom Operations ####
 
 'set-file' and 'get-file' will take a srcFile={path} and destFile={path} param respectively... this will encode and decode the base64 payload and save to the file system.
 

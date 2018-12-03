@@ -8,7 +8,7 @@ The dpdirect utility is a compact, maintainable java based utility that gives th
 
 dpdirect also functions as a SOMA/AMP reference, enabling the user to search for and pretty-print XML samples of SOMA and AMP operations.
 
-If you are looking for the DPDirect Web services Framework, the extensible, rapid-development DataPower SOA Services framework, you can find it here: https://github.com/SysIntAu/DPDirectServicesFramework
+If you are looking for the DPDirect Web Services Framework - an extensible, rapid-development DataPower SOA Services framework - you can find it here: https://github.com/SysIntAu/DPDirectServicesFramework
 
 ### GET THE DISTRIBUTION: ###
 

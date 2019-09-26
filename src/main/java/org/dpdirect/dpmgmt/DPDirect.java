@@ -357,6 +357,8 @@ public class DPDirect extends DPDirectBase implements DPDirectInterface {
 									break;
 								}
 							}
+							// suppress logging on subsequent calls
+							operation.setSuppressResponse(true);
 						}
 					} catch (IOException ex) {
 						log.error(ex.getMessage());

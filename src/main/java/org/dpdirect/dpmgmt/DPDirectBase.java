@@ -360,15 +360,15 @@ public class DPDirectBase implements DPDirectInterface {
 									.getSchemaURI());
 				} else if (firmwareLevel >= 3) {
 				    schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel + '/')
-							.toExternalForm()));
+							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel 
+							+ '/' + Constants.SOMA_MGMT_SCHEMA_NAME).toExternalForm()));
 					log.debug("SOMAInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());
 
 					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel + '/')
-							.toExternalForm()));
+							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel + '/' 
+							+ Constants.AMP_MGMT_DEFAULT_SCHEMA_NAME).toExternalForm()));
 					log.debug("AMPInstance schemaURI : "
 							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
 									.getSchemaURI());

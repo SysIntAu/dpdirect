@@ -1340,6 +1340,8 @@ public class DPDirectBase implements DPDirectInterface {
 		int intLevel = DEFAULT_FIRMWARE_LEVEL;
 		if (firmwareLevel.startsWith("default")) {
 			intLevel = 0;
+		} else if (firmwareLevel.startsWith("2018")) {
+			intLevel = 2018;
 		} else if (firmwareLevel.startsWith("8")) {
 			intLevel = 8;
 		} else if (firmwareLevel.startsWith("7")) {

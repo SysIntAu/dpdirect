@@ -454,10 +454,14 @@ public class DPCustomOp {
 			for (int i = 0; i < lines.length; i++) {
 				String line = lines[i];
 				if ((!lineList.contains(line) || !uniqueEntries)) {
-					lineList.add(line);
-					/* print out to console */
-					if (line.length() > 1) {
-						outputLines.append(line).append("\n");
+					// suppress auth events from subsequent tail requests
+					if(!line.contains("[" + Constants.LOGIN_DP_MSG_ID + "]") && 
+							!line.contains("[" + Constants.LOGOUT_DP_MSG_ID + "]")) {
+						lineList.add(line);
+						/* print out to console */
+						if (line.length() > 1) {
+							outputLines.append(line).append("\n");
+						}
 					}
 				}
 			}

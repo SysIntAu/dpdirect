@@ -570,4 +570,15 @@ public class Constants {
     * The SOMA response string identifier.
     */
    public static final String SOMA_RESPONSE_IDENTIFIER = ":response ";
+
+   /**
+    * The DataPower Message ID for Login Event
+    */
+   public static final String LOGIN_DP_MSG_ID = "0x81000033";
+   
+   /**
+    * The DataPower Message ID for Logout Event
+    */
+   public static final String LOGOUT_DP_MSG_ID = "0x81000019";
+
 }

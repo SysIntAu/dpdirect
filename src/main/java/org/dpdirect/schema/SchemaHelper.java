@@ -410,7 +410,7 @@ public class SchemaHelper {
             XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();   
             findReferenceInParticle(thisContext, particle);
          } else {
-         	  addToSchemaMap(thisContext, typeDefName);
+         	addToSchemaMap(thisContext, typeDefName);
          }
       }
    }
@@ -434,9 +434,9 @@ public class SchemaHelper {
          if (typeDefinition instanceof XSComplexTypeDefinition) {
             XSParticle particle = ((XSComplexTypeDefinition) typeDefinition).getParticle();
             if (null != particle) {
-               findReferenceInParticle(elementName, particle);
+				findReferenceInParticle(elementName, particle);
             } else {
-            	 addToSchemaMap(elementName, typeDefName);
+			    addToSchemaMap(elementName, typeDefName);
             }
          } else { // add to keyset
             addToSchemaMap(elementName, typeDefName);
@@ -456,12 +456,17 @@ public class SchemaHelper {
          XSTerm term = particle.getTerm();
          if (term instanceof XSModelGroup) {
             XSObjectList xsObjectList = ((XSModelGroup) term).getParticles();
-            for (int i = 0; i < xsObjectList.getLength(); i++) {
-               XSObject xsObject = xsObjectList.item(i);
-               if (xsObject instanceof XSParticle) {
-                  findReferenceInParticle(context, (XSParticle) xsObject);
-               }
-            }
+			//
+			if (xsObjectList.getLength() > 0) {
+				for (int i = 0; i < xsObjectList.getLength(); i++) {
+				   XSObject xsObject = xsObjectList.item(i);
+				   if (xsObject instanceof XSParticle) {
+					  findReferenceInParticle(context, (XSParticle) xsObject);
+				   }
+				}
+			} else {
+				addToSchemaMap(context, "");
+			}
          }
          else if (term instanceof XSElementDeclaration) {
             findElementReference(context, (XSElementDeclaration) term);

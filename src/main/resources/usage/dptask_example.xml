@@ -81,15 +81,15 @@
 	<target name="deploy">
 		<dpDeploy domain="${domain}" 
 			hostname="${hostname}" firmware="5" verbose="${verbose}">
-			<operation name="GetDomainStatusRequest" domain="EXISTK-TEST">
-				<option name="Domain" value="EXISTK-TEST"/>
+			<operation name="GetDomainStatusRequest" domain="TEST">
+				<option name="Domain" value="TEST"/>
 			</operation>
 			<operation name="get-status">
-				<option name="domain" value="EXISTK-TEST"/>
+				<option name="domain" value="TEST"/>
 				<option name="class" value="ActiveUsers"/>
 			</operation>
 			<operation name="SaveConfig">
-				<option name="domain" value="EXISTK-TEST"/>
+				<option name="domain" value="TEST"/>
 			</operation>
 		</dpDeploy>
 	</target>

@@ -456,7 +456,7 @@ public class SchemaHelper {
          XSTerm term = particle.getTerm();
          if (term instanceof XSModelGroup) {
             XSObjectList xsObjectList = ((XSModelGroup) term).getParticles();
-			//
+			// account for 'filler' elements with maxOccurances = 0 
 			if (xsObjectList.getLength() > 0) {
 				for (int i = 0; i < xsObjectList.getLength(); i++) {
 				   XSObject xsObject = xsObjectList.item(i);
@@ -469,7 +469,14 @@ public class SchemaHelper {
 			}
          }
          else if (term instanceof XSElementDeclaration) {
-            findElementReference(context, (XSElementDeclaration) term);
+			XSElementDeclaration elementDeclaration = (XSElementDeclaration) term;
+			String elementName = elementDeclaration.getName();
+			// account for schema recursion
+			if (elementName != context) {
+				findElementReference(context, elementDeclaration);
+			} else {
+				addToSchemaMap(context, "");
+			}
          }
          else { // XSWildcard
             String termName = term.getName();

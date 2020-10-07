@@ -31,7 +31,7 @@
 	-->
 	<target name="test" description="Runs the test">
 		<echo message="Testing..."/>
-		<dpd hostname="mydpserver.com.au" domain="TEST">
+		<dpd hostname="mydpservername.org" domain="TEST">
 			<operation name="get-status">
 				<option name="class" value="ActiveUsers"/>
 			</operation>

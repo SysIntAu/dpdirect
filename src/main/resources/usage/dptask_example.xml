@@ -80,7 +80,7 @@
 		****************************************************************** -->
 	<target name="deploy">
 		<dpDeploy domain="${domain}" 
-			hostname="${hostname}" firmware="5" verbose="${verbose}">
+			hostname="${hostname}" verbose="${verbose}">
 			<operation name="GetDomainStatusRequest" domain="TEST">
 				<option name="Domain" value="TEST"/>
 			</operation>

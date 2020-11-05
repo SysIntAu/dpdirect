@@ -13,7 +13,7 @@ If you are looking for the DPDirect Web Services Framework - an extensible, rapi
 ### GET THE DISTRIBUTION: ###
 
 Download the distribution from dist/dpdirect-{version}-deploy.zip or use the following URL:
-https://github.com/mqsysadmin/dpdirect/raw/master/dist/dpdirect-1.0.5-deploy.zip
+https://github.com/mqsysadmin/dpdirect/raw/master/dist/dpdirect-1.0.9-deploy.zip
 
 Unzip into a local directory - the package will unzipinto its own 'dpdirect' dir.
 

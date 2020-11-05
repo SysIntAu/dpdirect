@@ -263,7 +263,7 @@ Other options are 'AMP', 'SOMA', or a manually constructed relative path, eg '/s
 ### Ant-Task ###
 
 Please refer to the text file 'ant-usage.txt' and the ant xml file 'dptask_example.xml' for ant task guidance.
-## Please Note: ## there is currently a known issue with the ant task running on any ant version above 1.8.0.
+#### Please Note: #### there is currently a known issue with the ant task running on any ant version above 1.8.0.
 Until the issue is resolved, Please dowdload the ant 1.8.0 binaries to run dpdirect as an ant task.
 
 ---

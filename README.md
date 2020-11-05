@@ -27,7 +27,7 @@ Credentials should be provided via an optional NETRC file. Windows uses "_netrc"
 
 A '_netrc' (or '.netrc') file in your home path will pass your machine credentials to DPDirect, so that cleartext credentials need not be exposed in properties files passed in clear-text or via ant scripts.
 
-On windows the "_netrc" file should be created in the users home drive (E.g. "H:/_netrc"). Machine credentials in the _netrc file should be in the format:
+On windows the "_netrc" file should be created in the users home drive (E.g. "H:/_netrc" or "C:/Users/[username]"). Machine credentials in the _netrc file should be in the format:
 ```
 machine <NameOrIP> login <loginName> password <pw>
 ```
@@ -79,7 +79,7 @@ Copy over the downloaded files from the schema/download directory to the schema/
 
 #### Enable the XML Management Interface ####
 
-Via the Web-GUI, type 'XML Management' into the search bar, and select 'XML Management Interface'. Select the 'enable' button, and save config. 
+Via the DataPower Web-GUI, type 'XML Management' into the search bar, and select 'XML Management Interface'. Select the 'enable' button, and save config. 
 See the IBM notes at http://www.ibm.com/support/knowledgecenter/SS9H2Y_7.5.0/com.ibm.dp.doc/xmi_interfaceservices_enabling.html for more detail on XML Management Interface security.
 
 
@@ -124,7 +124,8 @@ In this case, it will suffice to enter at the cmd-line:
 ```
 DPDirect> get-status
 ```
-'get-status' without arguments will display all objects who's status is not currently 0x00000000.
+'get-status' without arguments will display all objects in the curently selected domain who's status is not currently 0x00000000.
+Set the domain name with 'domain=MYDOMAIN'
 ```
 DPDirect> get-status
 Class: Statistics, OpState: down, AdminState: disabled

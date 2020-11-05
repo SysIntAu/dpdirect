@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#
+# Please Note: there is currently a known xerces issue running under any ant version above 1.8.0.
+# To remediate, please copy dpdirect/lib/xercesImpl.jar into your apache-ant-[version]/lib folder. 
+# Or alternatively, run the ant-task with the ant 1.8.0 distribution.
 
       DPDirect Ant Task Usage:
 

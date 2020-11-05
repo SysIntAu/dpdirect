@@ -6,8 +6,7 @@
 	<version>1.0.9</version>
 	<packaging>jar</packaging>
 	<name>dpdirect</name>
-	<description>DPDirect is a general deployment and administration utility for use with IBM WebSphere DataPower
-		devices.</description>
+	<description>DPDirect is a general deployment and administration utility for use with IBM DataPower appliances</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- default environment -->

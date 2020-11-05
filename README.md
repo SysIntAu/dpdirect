@@ -265,7 +265,7 @@ Other options are 'AMP', 'SOMA', or a manually constructed relative path, eg '/s
 Please refer to the text file 'ant-usage.txt' and the ant xml file 'dptask_example.xml' for ant task guidance.
 #### Please Note: there is currently a known ant-task xerces issue running under any ant version above 1.8.0.
 Until the issue is resolved, Please copy dpdirect/lib/xercesImpl.jar into your ant-[version]/lib folder. 
-Alternatively, run the ant-task with the ant 1.8.0 distribution.
+OR, alternatively, run the ant-task with the ant 1.8.0 distribution.
 
 ---
 title: dpdirect

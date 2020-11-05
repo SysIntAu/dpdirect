@@ -32,7 +32,12 @@
 	** staging.dir     == Staging dir contains the built deployment artifacts, this will be a temporary buildforge working directory
 	**
 	** OPTIONAL PARMS - Deployment
-    ** source.type     == ZIP or XML (default is 'ZIP')
+	** source.type     == ZIP or XML (default is 'ZIP')
+	**
+	**
+	** PLEASE NOTE: there is currently a known xerces issue running under any ant version above 1.8.0.
+	** To remediate, please copy dpdirect/lib/xercesImpl.jar into your apache-ant-[version]/lib folder. 
+	** Or alternatively, run the ant-task with the ant 1.8.0 distribution.
 	**
 	******************************************************************** -->
 <project name="dp-deploy" default="deploy">

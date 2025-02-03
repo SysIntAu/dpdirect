@@ -28,7 +28,7 @@ jobs:
         run: mvn -B package -Drevision=${{ env.BUILD_VERSION }} --file pom.xml
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: target/**/*.jar,target/**/*.zip

@@ -35,8 +35,8 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>src\main\resources\default_schema</directory>
-			<outputDirectory>dpdirect\schemas</outputDirectory>
+			<directory>src\main\resources\schemas</directory>
+			<outputDirectory>dpdirect</outputDirectory>
 			<includes>
 				<include>**/**</include>
 			</includes>

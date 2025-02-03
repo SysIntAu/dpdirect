@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dpdirect</groupId>
 	<artifactId>dpdirect</artifactId>
-	<version>1.0.10</version>
+	<version>1.0.11</version>
 	<packaging>jar</packaging>
 	<name>dpdirect</name>
 	<description>DPDirect is a general deployment and administration utility for use with IBM DataPower appliances</description>
@@ -12,8 +12,8 @@
 		<!-- default environment -->
 		<env>local</env>
 	</properties>
-	<!--<distributionManagement> <snapshotRepository> <id>snapshots</id> <url>http://FOO/nexus/content/repositories/snapshots</url> 
-		</snapshotRepository> <repository> <id>releases</id> <url>http://FOO/nexus/content/repositories/releases</url> 
+	<!--<distributionManagement> <snapshotRepository> <id>snapshots</id> <url>http://FOO/nexus/content/repositories/snapshots</url>
+		</snapshotRepository> <repository> <id>releases</id> <url>http://FOO/nexus/content/repositories/releases</url>
 		</repository> </distributionManagement> -->
 	<!-- profiles -->
 	<profiles>
@@ -64,20 +64,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-						</manifest>
-						<manifestEntries>
-							<Class-Path>.</Class-Path> 
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2.1</version>
 				<executions>
@@ -86,14 +72,25 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>dpAssembly.xml</descriptor>
+							</descriptors>
+							<archive>
+								<manifest>
+									<addClasspath>true</addClasspath>
+								</manifest>
+								<manifestEntries>
+									<Class-Path>.</Class-Path>
+								</manifestEntries>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<outputDirectory>target</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<descriptors>
-						<descriptor>dpAssembly.xml</descriptor>
-					</descriptors>
-					<outputDirectory>target</outputDirectory>
-				</configuration>
 			</plugin>
 		</plugins>
 		<resources>

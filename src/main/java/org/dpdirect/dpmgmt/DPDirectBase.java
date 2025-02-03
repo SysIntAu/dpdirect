@@ -33,6 +33,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import org.apache.log4j.Logger;
 
@@ -342,6 +354,9 @@ public class DPDirectBase implements DPDirectInterface {
 	 */
 	@Override
 	public void setSchema() {
+		log.debug("firmwareLevel : " + firmwareLevel);
+		log.debug("userFirmwareLevel : " + userFirmwareLevel);
+		log.debug("schemaLoaderList  : " + schemaLoaderList.toString());
 		try {
 			if (schemaLoaderList.isEmpty()) {
 				if (firmwareLevel == 0) {
@@ -946,43 +961,69 @@ public class DPDirectBase implements DPDirectInterface {
 	 * 
 	 * @param operation : the operation to poll.
 	 */
-	public void pollForResult(Operation operation) throws Exception{
+	public void pollForResult(Operation operation) throws Exception {
 		String responseString = null;
-		String desiredResult = operation.getWaitFor();
-		String resultLower = desiredResult.toLowerCase();
-		String resultUpper = desiredResult.toUpperCase();
-		String resultCapital = resultUpper.substring(0,1) + resultLower.substring(1,resultLower.length()-1);
 		int numberOfPolls = 0;
 		int waitTimeSeconds = operation.getWaitTime();
 		int remainingTimeSeconds = waitTimeSeconds;
 		int pollIntervalSeconds = operation.getPollIntMillis()/1000;
-		String waitForString = ".*(" + resultLower + "|" + resultUpper + "|" + resultCapital + ").*";
-		Pattern waitForPattern = Pattern.compile(waitForString);
 		boolean matchResponse = false;
-		while (!matchResponse && remainingTimeSeconds>0) {
-			String responseXML = generateAndPost(operation);
+		
+		String waitFor = operation.getWaitFor();
+		String waitForXPath = operation.getWaitForXPath();
+		
+		Pattern waitForPattern = null;
+		if (waitFor != null) {
+			String resultLower = waitFor.toLowerCase();
+			String resultUpper = waitFor.toUpperCase();
+			String resultCapital = resultUpper.substring(0,1) + resultLower.substring(1,resultLower.length()-1);
+			String waitForString = ".*(" + resultLower + "|" + resultUpper + "|" + resultCapital + ").*";
+			waitForPattern = Pattern.compile(waitForString);
+		}
+
+		if (waitForXPath != null) {
+			try {
+				validateXPathExpression(waitForXPath);
+			} catch (XPathExpressionException ex) {
+				String errorText = "Failed to validate XPath expression - " + ex.getMessage();
+				errorHandler(operation, errorText, org.apache.log4j.Level.FATAL);
+			}
+		}
+	
+		while (!matchResponse && remainingTimeSeconds > 0) {
+			String responseXML = generateAndPost(operation); 
 			operation.response = responseXML;
 			responseString = processResponse(operation);
-			if (null == responseString) { 	
+			
+			if (null == responseString) {
 				String errorText = "Failed to parse DP response.";
 				errorHandler(operation, errorText, org.apache.log4j.Level.FATAL);
 			}
-			Matcher waitForMatch = waitForPattern.matcher(responseString);
-			matchResponse = waitForMatch.matches();
-			numberOfPolls += 1;
-			for (long stop = System.nanoTime()
-					+ TimeUnit.MILLISECONDS.toNanos(operation.getPollIntMillis()); 
-					stop > System.nanoTime();) {
+
+			if (waitFor != null) {
+				Matcher waitForMatch = waitForPattern.matcher(responseString);
+				matchResponse = waitForMatch.matches();
+			} else if (waitForXPath != null) {
+				matchResponse = evaluateXPath(responseXML, waitForXPath);
 			}
+	
+			numberOfPolls++;
+			for (long stop = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(operation.getPollIntMillis()); 
+				 stop > System.nanoTime();) { }
 			remainingTimeSeconds = waitTimeSeconds - (numberOfPolls * pollIntervalSeconds);
 		}
+	
 		if (!matchResponse && failOnError) {
-			String errorText = "Failed to recieve the required \'" + operation.getWaitFor() 
-					+ "\' response within a waitTime of " + waitTimeSeconds + " seconds.";
+			String errorText = "Failed to receive ";
+			if (waitFor != null) {
+				errorText += "the required '" + waitFor + "'";
+			} else if (waitForXPath != null) {
+				errorText += "matching XPath '" + waitForXPath + "'";
+			}
+			errorText += " response within " + waitTimeSeconds + " seconds.";
 			errorHandler(operation, errorText, org.apache.log4j.Level.FATAL);
 		}
 	}
-	
 
 	/* (non-Javadoc)
 	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#postXMLInstance(org.dpdirect.dpmgmt.DPDirect.Operation, org.dpdirect.utils.Credentials)
@@ -1146,6 +1187,59 @@ public class DPDirectBase implements DPDirectInterface {
 			} 
 		}
 		return parsedText;
+	}
+
+	/** 
+	 * Validate an XPath expression.
+	 * 
+	 * @param xpath String : the XPath expression to validate.
+	 */
+	private void validateXPathExpression(String xpath) throws XPathExpressionException {
+		if (xpath == null || xpath.trim().isEmpty()) {
+			throw new XPathExpressionException("XPath expression is null or empty");
+		}
+
+		try {
+			XPath xPath = XPathFactory.newInstance().newXPath();
+			xPath.compile(xpath);
+		} catch (XPathExpressionException e) {
+			log.error("Invalid XPath syntax: " + xpath + " - " + e.getMessage());
+			throw e;
+		}
+	}
+
+	/**
+	 * Evaluate an XPath expression against an XML string.
+	 * 
+	 * @param xml
+	 *            String : the XML string to evaluate.
+	 * @param xpath
+	 *            String : the XPath expression to evaluate.
+	 * @return boolean : true if the XPath expression evaluates to true.
+	 */
+	private boolean evaluateXPath(String xml, String xpath) throws XPathExpressionException {
+
+		log.info("Evaluating XPath: " + xpath);
+		log.debug("Against XML: " + xml);
+
+		validateXPathExpression(xpath);
+
+		try {
+			XPath xPath = XPathFactory.newInstance().newXPath();
+			xPath.compile(xpath);
+	
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(new InputSource(new StringReader(xml)));
+			NodeList nodes = (NodeList)xPath.evaluate(xpath, doc, XPathConstants.NODESET);
+
+			log.info("XPath evaluation result: " + nodes.getLength() + " (" + (nodes.getLength() > 0) + ")");
+
+			return nodes.getLength() > 0;
+		} catch (Exception e) {
+			log.error("XPath evaluation failed: " + e.getMessage());
+			return false;
+		}
 	}
 
 	/**
@@ -1414,6 +1508,8 @@ public class DPDirectBase implements DPDirectInterface {
 		protected String failState = null;
 		
 		protected String waitFor = null;
+
+		protected String waitForXPath = null;
 		
 		protected int waitTimeSeconds = DEFAULT_WAIT_TIME_SECONDS;
 		
@@ -1486,7 +1582,7 @@ public class DPDirectBase implements DPDirectInterface {
 			if (null != this.customOperation){
 				return customOperation.customPostIntercept();
 			}
-			else if (null != this.waitFor){
+			else if (null != this.waitFor || null != this.waitForXPath){
 				pollForResult(this);
 				return true;
 			}
@@ -1799,6 +1895,25 @@ public class DPDirectBase implements DPDirectInterface {
 		 */
 		public String getWaitFor() {
 			return this.waitFor;
+		}
+
+		/**
+		 * Set the waitForXPath value
+		 * 
+		 * @param xpath
+		 *            operation result to poll for.
+		 */
+		public void setWaitForXPath(String xpath) {
+			this.waitForXPath = xpath;
+		}
+
+		/**
+		 * Get the waitForXPath value
+		 * 
+		 * @return the waitForXPath value
+		 */
+		public String getWaitForXPath() {
+			return this.waitForXPath;
 		}
 		
 		/**

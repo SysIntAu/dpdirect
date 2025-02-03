@@ -3,11 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dpdirect</groupId>
 	<artifactId>dpdirect</artifactId>
-	<version>1.0.11</version>
+	<version>${revision}</version>
 	<packaging>jar</packaging>
 	<name>dpdirect</name>
 	<description>DPDirect is a general deployment and administration utility for use with IBM DataPower appliances</description>
 	<properties>
+		<revision>1.0.12</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- default environment -->
 		<env>local</env>

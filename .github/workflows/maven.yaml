@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: dpdirect
           path: |
             target/**/*.jar
             target/**/*.zip

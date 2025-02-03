@@ -483,11 +483,16 @@ public class DPCustomOp {
 		parsedText = DPDBase.parseResponseMsg(operation, false);
 		DPDBase.getLogger().debug("parsedText=" + parsedText);
 
-		outputLines = appendLines(operation, parsedText);
+		if (null == parsedText) {
+			success = false;
+		} else {
+			outputLines = appendLines(operation, parsedText);
 
-		if (0 < outputLines.length()) {
-			System.out.println(outputLines.toString().trim());
+			if (0 < outputLines.length()) {
+				System.out.println(outputLines.toString().trim());
+			}
 		}
+
 		return success;
 	}
 

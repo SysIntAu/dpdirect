@@ -21,13 +21,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.StringReader;
@@ -292,14 +292,14 @@ public class DPDirectBase implements DPDirectInterface {
 	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#addToOperationChain(org.dpdirect.dpmgmt.DPDirect.Operation)
 	 */
 	public void addToOperationChain(Operation operation) {
-		((List<Operation>)getOperationChain()).add(operation);
+		getOperationChain().add(operation);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#addToOperationChain(org.dpdirect.dpmgmt.DPDirect.Operation)
 	 */
 	public void addToOperationChain(int i, Operation operation) {
-		((List<Operation>)getOperationChain()).add(i, operation);
+		getOperationChain().add(i, operation);
 	}
 
 	/* (non-Javadoc)
@@ -318,109 +318,76 @@ public class DPDirectBase implements DPDirectInterface {
 		schemaLoaderList.clear();
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setSchema()
-	 */
 	@Override
 	public void setSchema() {
-		log.debug("firmwareLevel : " + firmwareLevel);
-		log.debug("userFirmwareLevel : " + userFirmwareLevel);
-		log.debug("schemaLoaderList  : " + schemaLoaderList.toString());
+		log.debug("firmwareLevel: " + firmwareLevel);
+		log.debug("userFirmwareLevel: " + userFirmwareLevel);
+
 		try {
 			if (schemaLoaderList.isEmpty()) {
-				if (firmwareLevel == 0) {
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-				} else if (firmwareLevel >= 3) {
-				    schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel 
-							+ '/' + Constants.SOMA_MGMT_SCHEMA_NAME).toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.MGMT_SCHEMAS_DIR + '/' + userFirmwareLevel + '/' 
-							+ Constants.AMP_MGMT_DEFAULT_SCHEMA_NAME).toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
+				if (firmwareLevel >= 3) {
+					log.info("Using custom schema paths for firmware level " + firmwareLevel);
+					addSchema(Constants.MGMT_SCHEMAS_DIR + "/" + userFirmwareLevel + "/" + Constants.SOMA_MGMT_SCHEMA_NAME,
+							"SOMAInstance", null);
+					addSchema(Constants.MGMT_SCHEMAS_DIR + "/" + userFirmwareLevel + "/" + Constants.AMP_MGMT_DEFAULT_SCHEMA_NAME,
+							"AMPInstance", null);
 				} else {
-										schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("SOMAInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
-
-					schemaLoaderList.add(new SchemaLoader(this.getClass()
-							.getResource(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)
-							.toExternalForm()));
-					log.debug("AMPInstance schemaURI : "
-							+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-									.getSchemaURI());
+					log.info("Using default schema paths for firmware level " + firmwareLevel);
+					addSchema(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH, "SOMAInstance", null);
+					addSchema(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH, "AMPInstance", null);
 				}
+			} else {
+				log.info("Schemas already loaded. Skipping schema initialization.");
 			}
 		} catch (Exception ex) {
 			if (!failOnError && !log.isDebugEnabled()) {
 				log.error(ex.getMessage());
 			} else {
-				log.error(ex.getMessage(), ex);
+				log.error("Exception occurred while setting schemas", ex);
 			}
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setSchema(java.lang.String)
-	 */
 	@Override
 	public void setSchema(String schemaPath) {
-
 		try {
 			if (Constants.SOMA_MGMT_2004_SHORT.equalsIgnoreCase(schemaPath)) {
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI());
+				addSchema(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH, "SOMAInstance", 0);
 			} else {
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI());
-				schemaLoaderList.add(0, new SchemaLoader(this.getClass()
-						.getResource(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH)
-						.toExternalForm()));
-				log.debug("Added schemaURI : "
-						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-								.getSchemaURI() + "\n");
-//			} else {
-//				schemaLoaderList.add(0, new SchemaLoader(schemaPath));
-//				log.debug("Added schemaURI : "
-//						+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-//								.getSchemaURI());
+				addSchema(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH, "AMPInstance", 0);
+				addSchema(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH, "SOMAInstance", 0);
 			}
 		} catch (Exception ex) {
 			if (!failOnError && !log.isDebugEnabled()) {
 				log.error(ex.getMessage());
 			} else {
-				log.error(ex.getMessage(), ex);
+				log.error("Exception occurred while setting schema with path: " + schemaPath, ex);
 			}
 		}
+	}
+
+	/**
+	 * Loads a schema resource from the classpath and adds it to schemaLoaderList.
+	 *
+	 * @param path   The resource path to load.
+	 * @param label  A label for logging (e.g., "SOMAInstance" or "AMPInstance").
+	 * @param index  If non-null, the schema is inserted at this index; otherwise, it’s appended.
+	 * @throws FileNotFoundException if the resource cannot be found.
+	 */
+	private void addSchema(String path, String label, Integer index) throws Exception {
+		URL url = getClass().getResource(path);
+		if (url == null) {
+			String errMsg = "Schema resource not found at path: " + path;
+			log.error(errMsg);
+			throw new FileNotFoundException(errMsg);
+		}
+		SchemaLoader loader = new SchemaLoader(url.toExternalForm());
+		if (index != null) {
+			schemaLoaderList.add(index, loader);
+		} else {
+			schemaLoaderList.add(loader);
+		}
+		log.info(label + " schema loaded successfully. URI: " + loader.getSchemaURI());
 	}
 
 	/* (non-Javadoc)
@@ -434,9 +401,7 @@ public class DPDirectBase implements DPDirectInterface {
 		// remove .properties extension if it exists - Resource loader will add
 		// the extension
 		if ((propFileName.length() < PROP_SUFFIX.length())
-				|| !propFileName.substring(
-						propFileName.length() - PROP_SUFFIX.length(),
-						propFileName.length()).equals(PROP_SUFFIX)) {
+				|| !propFileName.endsWith(PROP_SUFFIX)) {
 			propFileName = propFileName + PROP_SUFFIX;
 		}
 		try {
@@ -446,7 +411,7 @@ public class DPDirectBase implements DPDirectInterface {
 				String filePath = FileUtils.class.getProtectionDomain()
 						.getCodeSource().getLocation().getPath();
 				if (System.getProperty("os.name").startsWith("Windows")){
-					filePath = filePath.substring(1, filePath.length());
+					filePath = filePath.substring(1);
 				}
 				File jarFile = new File(filePath);
 				propFilePath = jarFile.getParent();
@@ -520,7 +485,7 @@ public class DPDirectBase implements DPDirectInterface {
 	
 	/**
 	 * set the logOutput switch.
-	 * @param should the output be logged.
+	 * @param isLogged the output be logged.
 	 */
 	public void setLogOutput(boolean isLogged){
 		this.logOutput = isLogged;
@@ -718,7 +683,7 @@ public class DPDirectBase implements DPDirectInterface {
 
 		String xmlResponse = generateAndPost(removeCheckpoint);
 		removeCheckpoint.setResponse(xmlResponse);
-		String parsedText = parseResponseMsg(removeCheckpoint, false);
+		parseResponseMsg(removeCheckpoint, false);
 	}
 
 	/* (non-Javadoc)
@@ -939,7 +904,7 @@ public class DPDirectBase implements DPDirectInterface {
 		if (waitFor != null) {
 			String resultLower = waitFor.toLowerCase();
 			String resultUpper = waitFor.toUpperCase();
-			String resultCapital = resultUpper.substring(0,1) + resultLower.substring(1,resultLower.length()-1);
+			String resultCapital = resultUpper.charAt(0) + resultLower.substring(1,resultLower.length()-1);
 			String waitForString = ".*(" + resultLower + "|" + resultUpper + "|" + resultCapital + ").*";
 			waitForPattern = Pattern.compile(waitForString);
 		}
@@ -1068,7 +1033,7 @@ public class DPDirectBase implements DPDirectInterface {
 			if ((logLevel.toInt() > org.apache.log4j.Level.INFO_INT) && log.isDebugEnabled() && handleError) {
 				logWarn(operation, parsedText);
 			} else if ((logLevel.toInt() <= org.apache.log4j.Level.INFO_INT)
-					   && (operation.getSuppressResponse() != true 
+					   && (!operation.getSuppressResponse()
 				        || logLevel.toInt() > org.apache.log4j.Level.ERROR_INT)){
 				logInfo(operation, parsedText);
 			}
@@ -1118,7 +1083,6 @@ public class DPDirectBase implements DPDirectInterface {
 	 */
 	@Override
 	public String processResponse(Operation operation) {
-		org.apache.log4j.Level logLevel = org.apache.log4j.Level.INFO;
 		String parsedText = null;
 
 		try {
@@ -1226,12 +1190,9 @@ public class DPDirectBase implements DPDirectInterface {
 
 			if (logLevel.toInt() >= org.apache.log4j.Level.FATAL_INT) {
 				if (failOnError && operation.getFailFlag()) {
-					if (null != checkPointName
-							&& null != operation
-							&& !Constants.SAVE_CHECKPOINT_OP_NAME
-									.equals(operation.getName())
-							&& !Constants.ROLLBACK_CHECKPOINT_OP_NAME
-									.equals(operation.getName())) {
+					if (null != checkPointName && !Constants.SAVE_CHECKPOINT_OP_NAME
+                            .equals(operation.getName()) && !Constants.ROLLBACK_CHECKPOINT_OP_NAME
+                            .equals(operation.getName())) {
 						// RESTORE CHECKPOINT.
 						log.warn("errorResponse=" + errorResponse);
 						log.warn("operation.getResponse()="
@@ -1277,8 +1238,6 @@ public class DPDirectBase implements DPDirectInterface {
 			System.out.println(output);
 		}
 		else {
-//			log.info(opName + " response:\n" + output);
-//			System.out.println("Response: " + output);
 			log.info(output);
 		}
 	}
@@ -1298,7 +1257,7 @@ public class DPDirectBase implements DPDirectInterface {
 		}
 		else {
 			log.error("errorResponse:\n" + errorResponse);
-			if (errorResponse.trim().equals("")) {
+			if (errorResponse.trim().isEmpty()) {
 				try {
 					log.error(DocumentHelper.prettyPrintXML(operation.getResponse()));
 				} catch (Exception e) {
@@ -1313,14 +1272,12 @@ public class DPDirectBase implements DPDirectInterface {
 	 * assigned if rollbackOnError is set to true. Invoked when when fatal
 	 * (org.apache.log4j.Level.SEVERE) error encountered.
 	 */
-	protected boolean restoreCheckpoint() throws Exception {
+	protected boolean restoreCheckpoint() {
 		boolean success = false;
 		if (checkPointName != null) {
 			// create and post new operation to request rollback.
 			Operation rollback = new Operation(this, Constants.ROLLBACK_CHECKPOINT_OP_NAME);
 			rollback.addOption(Constants.CHK_NAME_OP_NAME, checkPointName);
-			// schemaLoaderList.add(new SchemaLoader(
-			// this.getClass().getResource(Constants.SOMA_MGMT_50_SCHEMA_PATH).toExternalForm()));
 
 			generateXMLInstance(rollback);
 			String xmlResponse = postXMLInstance(rollback, getCredentials());
@@ -1364,7 +1321,7 @@ public class DPDirectBase implements DPDirectInterface {
 								props.getProperty(DPDirectProperties.NETRC_FILE_PATH_KEY)));
 				while (reader.ready()) {
 					String line = reader.readLine();
-					if (null != line && 0 < line.trim().length()
+					if (null != line && !line.trim().isEmpty()
 							&& !line.trim().startsWith("#")) {
 						String[] tokens = line.split("\\s+");
 						try {
@@ -1412,8 +1369,6 @@ public class DPDirectBase implements DPDirectInterface {
 			intLevel = 3;
 		} else if (firmwareLevel.startsWith("2004")) {
 			intLevel = 2004;
-		} else if (firmwareLevel.startsWith("default")) {
-			intLevel = 0;
 		}
 		this.userFirmwareLevel = firmwareLevel;
 		this.firmwareLevel = intLevel;

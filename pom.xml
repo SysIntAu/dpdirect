@@ -8,7 +8,7 @@
 	<name>dpdirect</name>
 	<description>DPDirect is a general deployment and administration utility for use with IBM DataPower appliances</description>
 	<properties>
-		<revision>1.0.12</revision>
+		<revision>1.0.13</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- default environment -->
 		<env>local</env>
@@ -59,8 +59,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.0.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>

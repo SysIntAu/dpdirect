@@ -73,6 +73,9 @@ public class Operation {
 
     protected List<Option> options = new ArrayList<Option>();
 
+    protected List<SetProperty> setProperties = new ArrayList<SetProperty>();
+
+
     /** Response parser. */
     protected ResponseParser responseParser = null;
 
@@ -646,6 +649,21 @@ public class Operation {
     }
 
     /**
+     * @return the setProperties
+     */
+    public List<SetProperty> getSetProperties() {
+        return setProperties;
+    }
+
+    /**
+     * @param setProperties
+     *            the setProperties to set
+     */
+    public void setSetProperties(List<SetProperty> setProperties) {
+        this.setProperties = setProperties;
+    }
+
+    /**
      * @return the name
      */
     public String getName() {
@@ -950,6 +968,28 @@ public class Operation {
     }
 
     /**
+     * Create a nested SetProperty object for this operation.
+     * @return the new SetProperty object.
+     */
+    public SetProperty createSetProperty() {
+        SetProperty setProperty = new SetProperty();
+        this.setProperties.add(setProperty);
+        return setProperty;
+    }
+
+    /**
+     * Utility method to create nested operation set properties from name/xpath
+     * @param name
+     * @param xpath
+     */
+    public void addSetProperty(String name, String xpath) {
+        SetProperty setProperty = new SetProperty();
+        setProperty.setName(name);
+        setProperty.setXpath(xpath);
+        this.setProperties.add(setProperty);
+    }
+
+    /**
      * Inner class of nested options representing attribute or element
      * values for a SOMA or AMP operation. Several options may belong to a
      * single operation.
@@ -1049,6 +1089,30 @@ public class Operation {
          */
         public String getSrcFile() {
             return srcFile;
+        }
+    }
+
+    public class SetProperty {
+        protected String name = null;
+        protected String xpath = null;
+
+        public SetProperty() {
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setXpath(String xpath) {
+            this.xpath = xpath;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getXpath() {
+            return xpath;
         }
     }
 }

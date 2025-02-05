@@ -16,7 +16,13 @@ package org.dpdirect.dpmgmt;
  * limitations under the License.
  */
  
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +53,7 @@ import org.dpdirect.utils.Credentials;
 import org.dpdirect.utils.DPDirectProperties;
 import org.dpdirect.utils.FileUtils;
 import org.dpdirect.utils.PostXML;
+import org.dpdirect.utils.XPathUtils;
 
 import static org.dpdirect.dpmgmt.Defaults.DEFAULT_FIRMWARE_LEVEL;
 
@@ -823,7 +830,7 @@ public abstract class DPDirectBase implements DPDirectInterface {
 
 		if (waitForXPath != null) {
 			try {
-				validateXPathExpression(waitForXPath);
+				XPathUtils.validateXPathExpression(waitForXPath);
 			} catch (XPathExpressionException ex) {
 				String errorText = "Failed to validate XPath expression - " + ex.getMessage();
 				errorHandler(operation, errorText, org.apache.log4j.Level.FATAL);
@@ -844,7 +851,7 @@ public abstract class DPDirectBase implements DPDirectInterface {
 				Matcher waitForMatch = waitForPattern.matcher(responseString);
 				matchResponse = waitForMatch.matches();
 			} else if (waitForXPath != null) {
-				matchResponse = evaluateXPath(responseXML, waitForXPath);
+				matchResponse = XPathUtils.evaluateXPath(responseXML, waitForXPath);
 			}
 	
 			numberOfPolls++;
@@ -1010,59 +1017,6 @@ public abstract class DPDirectBase implements DPDirectInterface {
 			} 
 		}
 		return parsedText;
-	}
-
-	/** 
-	 * Validate an XPath expression.
-	 * 
-	 * @param xpath String : the XPath expression to validate.
-	 */
-	private void validateXPathExpression(String xpath) throws XPathExpressionException {
-		if (xpath == null || xpath.trim().isEmpty()) {
-			throw new XPathExpressionException("XPath expression is null or empty");
-		}
-
-		try {
-			XPath xPath = XPathFactory.newInstance().newXPath();
-			xPath.compile(xpath);
-		} catch (XPathExpressionException e) {
-			log.error("Invalid XPath syntax: " + xpath + " - " + e.getMessage());
-			throw e;
-		}
-	}
-
-	/**
-	 * Evaluate an XPath expression against an XML string.
-	 * 
-	 * @param xml
-	 *            String : the XML string to evaluate.
-	 * @param xpath
-	 *            String : the XPath expression to evaluate.
-	 * @return boolean : true if the XPath expression evaluates to true.
-	 */
-	private boolean evaluateXPath(String xml, String xpath) throws XPathExpressionException {
-
-		log.info("Evaluating XPath: " + xpath);
-		log.debug("Against XML: " + xml);
-
-		validateXPathExpression(xpath);
-
-		try {
-			XPath xPath = XPathFactory.newInstance().newXPath();
-			xPath.compile(xpath);
-	
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(new InputSource(new StringReader(xml)));
-			NodeList nodes = (NodeList)xPath.evaluate(xpath, doc, XPathConstants.NODESET);
-
-			log.info("XPath evaluation result: " + nodes.getLength() + " (" + (nodes.getLength() > 0) + ")");
-
-			return nodes.getLength() > 0;
-		} catch (Exception e) {
-			log.error("XPath evaluation failed: " + e.getMessage());
-			return false;
-		}
 	}
 
 	/**

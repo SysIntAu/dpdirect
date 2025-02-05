@@ -25,9 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.dpdirect.dpmgmt.DPDirectBase.Operation;
-import org.dpdirect.dpmgmt.DPDirectBase.Operation.Option;
 import org.dpdirect.utils.FileUtils;
+
+import static org.dpdirect.dpmgmt.Defaults.DEFAULT_POLL_INT_MILLIS;
+import static org.dpdirect.dpmgmt.Defaults.DEFAULT_WAIT_TIME_SECONDS;
 
 /**
  * Class for the management of IBM DataPower device via the XML management
@@ -94,7 +95,7 @@ public class DPCustomOp {
 	/**
 	 * The log poll interval as a value in milliseconds.
 	 */
-	protected int pollIntMillis = DPDirectBase.getDefaultPollIntMillis();
+	protected int pollIntMillis = DEFAULT_POLL_INT_MILLIS;
 	
 	/**
 	 * The tail-log poll interval as a value in milliseconds.
@@ -104,7 +105,7 @@ public class DPCustomOp {
 	/**
 	 * The tail-count (message-counts) poll interval as a value in milliseconds.
 	 */
-	public static int COUNT_POLL_INT_MILLIS = DPDirectBase.getDefaultPollIntMillis();
+	public static int COUNT_POLL_INT_MILLIS = DEFAULT_WAIT_TIME_SECONDS;
 	
 	/**
 	 * HashMap of all custom operations configured for this class, 

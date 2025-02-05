@@ -15,21 +15,12 @@ package org.dpdirect.dpmgmt;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+
 import java.util.List;
 
-import org.dpdirect.dpmgmt.DPDirectBase;
-import org.dpdirect.dpmgmt.DPDirectBase.Operation;
-
-import org.apache.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.dpdirect.utils.Credentials;
-
-
 
 /**
  * Class for the management of IBM DataPower device via the and and the XML management
@@ -74,7 +65,7 @@ import org.dpdirect.utils.Credentials;
  */
 public class DPDirectTask extends Task implements DPDirectInterface {
 	
-	private DPDirectBase base = new
+	private final DPDirectBase base = new
 			DPDirectBase();
 	
 	public DPDirectTask() {}
@@ -205,12 +196,12 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 	}
 
 	@Override
-	public DPDirectBase.Operation createOperation() {
-		return (DPDirectBase.Operation) base.createOperation();
+	public Operation createOperation() {
+		return (Operation) base.createOperation();
 	}
 
 	@Override
-	public DPDirectBase.Operation createOperation(String operationName) {
+	public Operation createOperation(String operationName) {
 		return base.createOperation(operationName);
 	}
 
@@ -220,7 +211,7 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 	}
 
 	@Override
-	public String generateXMLInstance(DPDirectBase.Operation operation) {
+	public String generateXMLInstance(Operation operation) {
 		return base.generateXMLInstance(operation);
 	}
 
@@ -230,27 +221,27 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 	}
 
 	@Override
-	public String parseResponseMsg(DPDirectBase.Operation operation, boolean handleError) {
+	public String parseResponseMsg(Operation operation, boolean handleError) {
 		return base.parseResponseMsg(operation, handleError);
 	}
 
 	@Override
-	public boolean isSuccessResponse(DPDirectBase.Operation operation) {
+	public boolean isSuccessResponse(Operation operation) {
 		return base.isSuccessResponse(operation);
 	}
 
 	@Override
-	public String processResponse(DPDirectBase.Operation operation) {
+	public String processResponse(Operation operation) {
 		return base.processResponse(operation);
 	}
 
 	@Override
-	public String generateAndPost(DPDirectBase.Operation operation) {
+	public String generateAndPost(Operation operation) {
 		return base.generateAndPost(operation);
 	}
 
 	@Override
-	public String postXMLInstance(DPDirectBase.Operation operation, Credentials credentials) {
+	public String postXMLInstance(Operation operation, Credentials credentials) {
 		return base.postXMLInstance(operation, credentials);
 	}
 

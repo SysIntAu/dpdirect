@@ -19,7 +19,7 @@ package org.dpdirect.dpmgmt;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
-import org.dpdirect.dpmgmt.DPDirectBase.Operation;
+import org.dpdirect.dpmgmt.Operation;
 import org.dpdirect.utils.Credentials;
 
 public interface DPDirectInterface {

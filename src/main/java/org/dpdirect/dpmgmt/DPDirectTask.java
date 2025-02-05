@@ -64,75 +64,28 @@ import org.dpdirect.utils.Credentials;
  * @author Tim Goodwill
  */
 public class DPDirectTask extends Task implements DPDirectInterface {
-	
-	private final DPDirectBase base = new
-			DPDirectBase();
-	
+
+	private final DPDirectBase base = new DPDirectTaskBase();
+
+	private static class DPDirectTaskBase extends DPDirectBase {
+		//@Override
+		//public String processResponse(Operation operation) {
+		//	System.out.print("highjacking processResponse");
+		//	return super.processResponse(operation);
+		//}
+	}
+
 	public DPDirectTask() {}
 
 	@Override
 	public void execute() throws BuildException {
+		System.out.println(getProject());
 		base.execute();
-	}
-	
-	@Override
-	public List<Operation> getOperationChain() {
-		return (List<Operation>)base.getOperationChain();
-	}
-
-	@Override
-	public void resetOperationChain() {
-		base.resetOperationChain();
-	}
-
-	@Override
-	public void resetSchemas() {
-		base.resetSchemas();
-	}
-
-	@Override
-	public void setSchema() {
-		base.setSchema();
-	}
-
-	@Override
-	public void setSchema(String schemaPath) {
-		base.setSchema(schemaPath);
-	}
-
-	@Override
-	public void processPropertiesFile(String propFileName) {
-		base.processPropertiesFile(propFileName);
-	}
-
-	@Override
-	public void setGlobalOption(String name, String value) {
-		base.setGlobalOption(name, value);
-	}
-
-	@Override
-	public String getOutputType() {
-		return base.getOutputType();
-	}
-
-	@Override
-	public void setOutputType(String type) {
-		base.setOutputType(type);
 	}
 
 	@Override
 	public void setHostName(String hostName) {
 		base.setHostName(hostName);
-	}
-
-	@Override
-	public void setPort(String port) {
-		base.setPort(port);
-	}
-
-	@Override
-	public String getPort() {
-		return base.getPort();
 	}
 
 	@Override
@@ -146,38 +99,13 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 	}
 
 	@Override
-	public Credentials getCredentials() {
-		return base.getCredentials();
-	}
-
-	@Override
-	public void setCredentials(Credentials credentials) {
-		base.setCredentials(credentials);
-	}
-
-	@Override
-	public String getHostName() {
-		return base.getHostName();
+	public void setPort(String port) {
+		base.setPort(port);
 	}
 
 	@Override
 	public void setDomain(String domain) {
 		base.setDomain(domain);
-	}
-
-	@Override
-	public String getDomain() {
-		return base.getDomain();
-	}
-
-	@Override
-	public void setVerbose(String verboseOutput) {
-		base.setVerbose(verboseOutput);
-	}
-
-	@Override
-	public void setDebug(String debugOutput) {
-		base.setDebug(debugOutput);
 	}
 
 	@Override
@@ -191,63 +119,13 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 	}
 
 	@Override
-	public void removeCheckpoint() {
-		base.removeCheckpoint();
+	public void setOutputType(String type) {
+		base.setOutputType(type);
 	}
 
 	@Override
-	public Operation createOperation() {
-		return (Operation) base.createOperation();
-	}
-
-	@Override
-	public Operation createOperation(String operationName) {
-		return base.createOperation(operationName);
-	}
-
-	@Override
-	public void addOperation(String operationName) {
-		base.addOperation(operationName);
-	}
-
-	@Override
-	public String generateXMLInstance(Operation operation) {
-		return base.generateXMLInstance(operation);
-	}
-
-	@Override
-	public void postOperationXML() {
-		base.postOperationXML();
-	}
-
-	@Override
-	public String parseResponseMsg(Operation operation, boolean handleError) {
-		return base.parseResponseMsg(operation, handleError);
-	}
-
-	@Override
-	public boolean isSuccessResponse(Operation operation) {
-		return base.isSuccessResponse(operation);
-	}
-
-	@Override
-	public String processResponse(Operation operation) {
-		return base.processResponse(operation);
-	}
-
-	@Override
-	public String generateAndPost(Operation operation) {
-		return base.generateAndPost(operation);
-	}
-
-	@Override
-	public String postXMLInstance(Operation operation, Credentials credentials) {
-		return base.postXMLInstance(operation, credentials);
-	}
-
-	@Override
-	public Credentials getCredentialsFromNetrcConfig(String hostName) {
-		return base.getCredentialsFromNetrcConfig(hostName);
+	public void setVerbose(String verboseOutput) {
+		base.setVerbose(verboseOutput);
 	}
 
 	@Override
@@ -256,14 +134,13 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 	}
 
 	@Override
-	public String getNetrcFilePath() {
-		return base.getNetrcFilePath();
+	public void setSchema(String schema) {
+		base.setSchema(schema);
 	}
 
 	@Override
-	public void setNetrcFilePath(String netrcFilePath) {
-		base.setNetrcFilePath(netrcFilePath);
+	public Operation createOperation() {
+		return base.createOperation();
 	}
-
 }
 

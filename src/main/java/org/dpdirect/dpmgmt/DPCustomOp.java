@@ -250,7 +250,7 @@ public class DPCustomOp {
 					}
 				}
 			} catch (IOException ex) {
-				if (!DPDBase.failOnError && !DPDBase.getLogger().isDebugEnabled()) {
+				if (!DPDBase.getFailOnError() && !DPDBase.getLogger().isDebugEnabled()) {
 					DPDBase.getLogger().error(ex.getMessage());
 				} else {
 					DPDBase.getLogger().error(ex.getMessage(), ex);
@@ -576,7 +576,7 @@ public class DPCustomOp {
 				}
 			}
 		} catch (IOException ex) {
-			if (!DPDBase.failOnError && !DPDBase.getLogger().isDebugEnabled()) {
+			if (!DPDBase.getFailOnError() && !DPDBase.getLogger().isDebugEnabled()) {
 				DPDBase.getLogger().error(ex.getMessage());
 			} else {
 				DPDBase.getLogger().error(ex.getMessage(), ex);

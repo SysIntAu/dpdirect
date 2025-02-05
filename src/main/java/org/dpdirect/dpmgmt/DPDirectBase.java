@@ -16,11 +16,7 @@ package org.dpdirect.dpmgmt;
  * limitations under the License.
  */
  
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,7 +26,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -108,7 +103,7 @@ import static org.dpdirect.dpmgmt.Defaults.DEFAULT_FIRMWARE_LEVEL;
  * 
  * @author Tim Goodwill
  */
-public class DPDirectBase implements DPDirectInterface {
+public abstract class DPDirectBase implements DPDirectInterface {
 
 	/**
 	 * Class logger.
@@ -116,44 +111,66 @@ public class DPDirectBase implements DPDirectInterface {
 	protected final static Logger log = Logger.getLogger(DPDirectBase.class);
 
 	/**
+	 * Date formatter object configured with 'yyyyMMddhhmmss' format. Caller
+	 * should synchronize on this object prior to use.
+	 */
+	protected static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyyMMddhhmmss");
+
+	/**
 	 * Cache of project properties.
 	 */
 	protected DPDirectProperties props = null;
 
-	/**
-	 * The system dependent path of the NETRC file, optionally used for
-	 * credential lookup.
-	 */
-	public String netrcFilePath = null;
-
-	/** Nominated firmware level - determines SOMA and AMP version. */
-	protected int firmwareLevel = DEFAULT_FIRMWARE_LEVEL;
-	protected String userFirmwareLevel = "default";
-
-	/**
-	 * Date formatter object configured with 'yyyyMMddhhmmss' format. Caller
-	 * should synchronize on this object prior to use.
-	 */
-	protected static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
-			"yyyyMMddhhmmss");
-
-	/** List of operations to build and post in order. */
-	protected List<Operation> operationChain = new ArrayList<Operation>();
-
-	/** List of loaded SchemaLoader schemas */
-	protected List<SchemaLoader> schemaLoaderList = new ArrayList<SchemaLoader>();
-
-	/** OutputType. Default 'PARSED'. */
-	protected String outputType = "PARSED";
-
 	/** Target DataPower device hostname. */
 	protected String hostName = null;
+
+	public String getHostName() {
+		return this.hostName;
+	}
+
+	@Override
+	public void setHostName(String hostName) {
+		this.hostName = hostName;
+	}
 
 	/** Target DataPower port number. Default '5550'. */
 	protected String port = "5550";
 
+	public String getPort() {
+		return this.port;
+	}
+
+	@Override
+	public void setPort(String port) {
+		this.port = port;
+	}
+
 	/** Target DataPower username and password */
 	protected Credentials credentials = null;
+
+	public Credentials getCredentials() {
+		return resolveCredentials();
+	}
+
+	public void setCredentials(Credentials credentials) {
+		this.credentials = credentials;
+	}
+
+	@Override
+	public void setUserName(String userName) {
+		if (null == credentials) {
+			this.setCredentials(new Credentials());
+		}
+		this.getCredentials().setUserName(userName);
+	}
+
+	@Override
+	public void setUserPassword(String password) {
+		if (null == credentials) {
+			this.setCredentials(new Credentials());
+		}
+		this.getCredentials().setPassword(password.toCharArray());
+	}
 
 	/**
 	 * Optional Target DataPower domain. Constitutes default for chained
@@ -161,26 +178,155 @@ public class DPDirectBase implements DPDirectInterface {
 	 */
 	protected String domain = null;
 
-	/** Checkpoint saved, and rolled back in case of deployment errors. */
-	protected String checkPointName = null;
+	@Override
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+
+	public String getDomain() {
+		return this.domain;
+	}
+
+	// TODO: Remove this method
+	public String getDefaultDomain() {
+		return this.domain;
+	}
 
 	/** Operations immediately cease if an error is encountered. Default 'true'. */
 	protected boolean failOnError = true;
-	
+
+	public boolean getFailOnError() {
+		return this.failOnError;
+	}
+
+	@Override
+	public void setFailOnError(boolean failOnError) {
+		this.failOnError = failOnError;
+	}
+
+	// TODO: Create generic getter/setter for rollbackOnError
+
+	/** OutputType. Default 'PARSED'. */
+	protected String outputType = "PARSED";
+
+	public String getOutputType() {
+		return this.outputType;
+	}
+
+	@Override
+	public void setOutputType(String type) {
+		this.outputType=type;
+	}
+
+	@Override
+	public void setVerbose(String verboseOutput) {
+		setDebug(verboseOutput);
+	}
+
+	/** Nominated firmware level - determines SOMA and AMP version. */
+	protected int firmwareLevel = DEFAULT_FIRMWARE_LEVEL;
+
+	public int getFirmwareLevel()	{
+		return this.firmwareLevel;
+	}
+
+	public void setFirmwareLevel(int firmwareLevel) {
+		this.firmwareLevel = firmwareLevel;
+	}
+
+	protected String userFirmwareLevel = "default";
+
+	public String getUserFirmwareLevel() {
+		return this.userFirmwareLevel;
+	}
+
+	public void setUserFirmwareLevel(String userFirmwareLevel) {
+		this.userFirmwareLevel = userFirmwareLevel;
+	}
+
+	/** Checkpoint saved, and rolled back in case of deployment errors. */
+	protected String checkPointName = null;
+
+	/** List of operations to build and post in order. */
+	protected List<Operation> operationChain = new ArrayList<Operation>();
+
+	public List<Operation> getOperationChain() {
+		return this.operationChain;
+	}
+
+	@Override
+	public Operation createOperation() {
+		Operation operation = new Operation(this);
+		addToOperationChain(operation);
+		return operation;
+	}
+
+	public Operation createOperation(String operationName) {
+		Operation operation = new Operation(this, operationName);
+		addToOperationChain(operation);
+		return operation;
+	}
+
+	public void addToOperationChain(Operation operation) {
+		getOperationChain().add(operation);
+	}
+
+	public void addToOperationChain(int i, Operation operation) {
+		getOperationChain().add(i, operation);
+	}
+
+	public Operation newOperation(String operationName) {
+		return new Operation(this, operationName);
+	}
+
+	public void resetOperationChain() {
+		operationChain.clear();
+	}
+
+	/** List of loaded SchemaLoader schemas */
+	protected List<SchemaLoader> schemaLoaderList = new ArrayList<SchemaLoader>();
+
+	public void resetSchemas() {
+		schemaLoaderList.clear();
+	}
+
+	/**
+	 * The system dependent path of the NETRC file, optionally used for
+	 * credential lookup.
+	 */
+	protected String netrcFilePath = null;
+
+	public String getNetrcFilePath() {
+		return this.netrcFilePath;
+	}
+
+	public void setNetrcFilePath(String netrcFilePath) {
+		this.netrcFilePath = netrcFilePath;
+	}
+
 	/** Output is logged. Default 'true'. */
 	protected boolean logOutput = true;
-	
+
+	/**
+	 * set the logOutput switch.
+	 * @param isLogged the output be logged.
+	 */
+	public void setLogOutput(boolean isLogged){
+		this.logOutput = isLogged;
+	}
+
+	/**
+	 * get the logger attached to this class.
+	 * @return logger
+	 */
+	public Logger getLogger() {
+		return log;
+	}
+
 	/**
 	 * Cache of the "ant-usage.txt" help file content.
 	 */
 	protected static String antUsageText = null;
-
-	/**
-	 * Print ant help to the console.
-	 */
-	public static void help() {
-		antHelp();
-	}
 
 	/**
 	 * Print ant task help to System.out.
@@ -195,74 +341,57 @@ public class DPDirectBase implements DPDirectInterface {
 	}
 
 	/**
+	 * Print ant help to the console.
+	 */
+	public static void help() {
+		antHelp();
+	}
+
+	/**
+	 * @return this instance
+	 */
+	protected DPDirectBase getDPDInstance() {
+		return this;
+	}
+
+	/**
 	 * Constructs a new <code>DPDirect</code> class.
 	 */
 	public DPDirectBase() {
-		log.debug("Constructing new DPDirect class intance");
+		log.debug("Constructing new DPDirect class instance");
 		// Load properties
 		try {
 			this.props = new DPDirectProperties();
 			try {
-				setNetrcFilePath(props
-						.getProperty(DPDirectProperties.NETRC_FILE_PATH_KEY));
-				setFirmware(props
-						.getProperty(DPDirectProperties.FIRMWARE_LEVEL_KEY));
+				setNetrcFilePath(props.getProperty(DPDirectProperties.NETRC_FILE_PATH_KEY));
+				setFirmware(props.getProperty(DPDirectProperties.FIRMWARE_LEVEL_KEY));
 			} catch (Exception e) {
 				this.firmwareLevel = DEFAULT_FIRMWARE_LEVEL;
 			}
 		} catch (IOException ex) {
-			if (!failOnError && !log.isDebugEnabled()) {
+			if (!getFailOnError() && !log.isDebugEnabled()) {
 				log.error(ex.getMessage());
 			} else {
 				log.error(ex.getMessage(), ex);
 			}
 		}
 		// Cache the ant usage text file content.
-		InputStream inputStream = DPDirectBase.class
-				.getResourceAsStream(Constants.ANT_USAGE_TEXT_FILE_PATH);
-		try {
-			byte[] fileBytes = FileUtils.readInputStreamBytes(inputStream);
-			antUsageText = new String(fileBytes);
-		} catch (IOException ex) {
-			log.error(ex.getMessage(), ex);
-		} finally {
-			try {
-				inputStream.close();
-			} catch (Exception e) {
-				// Ignore.
-			}
-		}
-		
-	}
+		InputStream inputStream = DPDirectBase.class.getResourceAsStream(Constants.ANT_USAGE_TEXT_FILE_PATH);
 
-	/**
-	 * Constructs a new <code>DPDirect</code> class.
-	 * 
-	 * @param schemaDirectory
-	 *            the directory in which to find the SOMA and AMP schema.
-	 */
-	public DPDirectBase(String schemaDirectory) {
-		this();
-		try {
-			schemaLoaderList.add(new SchemaLoader(schemaDirectory + "/"
-					+ Constants.SOMA_MGMT_SCHEMA_NAME));
-			log.debug("SOMAInstance schemaURI : "
-					+ schemaLoaderList.get(schemaLoaderList.size() - 1)
-							.getSchemaURI());
-		} catch (Exception ex) {
-			if (!failOnError && !log.isDebugEnabled()) {
-				log.error(ex.getMessage());
-			} else {
+		if (inputStream != null) {
+			try {
+				byte[] fileBytes = FileUtils.readInputStreamBytes(inputStream);
+				antUsageText = new String(fileBytes);
+			} catch (IOException ex) {
 				log.error(ex.getMessage(), ex);
+			} finally {
+				try {
+					inputStream.close();
+				} catch (Exception e) {
+					// Ignore.
+				}
 			}
 		}
-	}
-	
-	/**
-	 * @return this instance
-	 */
-	protected DPDirectBase getDPDInstance() {
-		return this;
 	}
 
 	/* (non-Javadoc)
@@ -279,46 +408,11 @@ public class DPDirectBase implements DPDirectInterface {
 		this.generateOperationXML();
 		this.postOperationXML();
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getOperationChain()
-	 */
-	@Override
-	public List<Operation> getOperationChain() {
-		return this.operationChain;
-	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#addToOperationChain(org.dpdirect.dpmgmt.DPDirect.Operation)
+	/**
+	 * Set the schema paths for the SOMA and AMP operations. The schema paths
+	 * are determined by the firmware level.
 	 */
-	public void addToOperationChain(Operation operation) {
-		getOperationChain().add(operation);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#addToOperationChain(org.dpdirect.dpmgmt.DPDirect.Operation)
-	 */
-	public void addToOperationChain(int i, Operation operation) {
-		getOperationChain().add(i, operation);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#resetOperationChain()
-	 */
-	@Override
-	public void resetOperationChain() {
-		operationChain.clear();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#resetSchemas()
-	 */
-	@Override
-	public void resetSchemas() {
-		schemaLoaderList.clear();
-	}
-	
-	@Override
 	public void setSchema() {
 		log.debug("firmwareLevel: " + firmwareLevel);
 		log.debug("userFirmwareLevel: " + userFirmwareLevel);
@@ -390,10 +484,11 @@ public class DPDirectBase implements DPDirectInterface {
 		log.info(label + " schema loaded successfully. URI: " + loader.getSchemaURI());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#processPropertiesFile(java.lang.String)
+	/**
+	 * Load a properties file and process the properties.
+	 *
+	 * @param propFileName the properties file name.
 	 */
-	@Override
 	public void processPropertiesFile(String propFileName) {
 		final String PROP_SUFFIX = ".properties";
 		String opName = null;
@@ -432,10 +527,12 @@ public class DPDirectBase implements DPDirectInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setGlobalOption(java.lang.String, java.lang.String)
+	/**
+	 * Set the global options for the DPDirect instance.
+	 *
+	 * @param name the option name.
+	 * @param value the option value.
 	 */
-	@Override
 	public void setGlobalOption(String name, String value) {
 		if (Constants.HOST_NAME_OPT_NAME.equalsIgnoreCase(name)) {
 			this.setHostName(value);
@@ -474,184 +571,49 @@ public class DPDirectBase implements DPDirectInterface {
 		}
 
 	}
-	
+
 	/**
-	 * get the logger attached to this class.
-	 * @return logger
+	 * Resolve the credentials for the target host. If credentials are not
+	 * provided by the command line or ant task, then the Netrc file is checked
+	 * for the target host.
+	 *
+	 * @return the resolved credentials.
 	 */
-	public Logger getLogger() {
-		return log;
-	}
-	
-	/**
-	 * set the logOutput switch.
-	 * @param isLogged the output be logged.
-	 */
-	public void setLogOutput(boolean isLogged){
-		this.logOutput = isLogged;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getOutputType()
-	 */
-	@Override
-	public String getOutputType() {
-		return this.outputType;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setOutputType(java.lang.String)
-	 */
-	@Override
-	public void setOutputType(String type) {
-		this.outputType=type;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setHostName(java.lang.String)
-	 */
-	@Override
-	public void setHostName(String hostName) {
-		this.hostName = hostName;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setPort(java.lang.String)
-	 */
-	@Override
-	public void setPort(String port) {
-		this.port = port;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getPort()
-	 */
-	@Override
-	public String getPort() {
-		return port;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setUserName(java.lang.String)
-	 */
-	@Override
-	public void setUserName(String userName) {
-		if (null == credentials) {
-			this.setCredentials(new Credentials());
+	public Credentials resolveCredentials() {
+		if (credentials != null) {
+			return credentials;
 		}
-		this.getCredentials().setUserName(userName);
-	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setUserPassword(java.lang.String)
-	 */
-	@Override
-	public void setUserPassword(String password) {
-		if (null == credentials) {
-			this.setCredentials(new Credentials());
+		if (getHostName() == null) {
+			log.error("Failed to resolve credentials from Netrc config. No target 'hostName' value has been provided");
+			return null;
 		}
-		this.getCredentials().setPassword(password.toCharArray());
-	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getCredentials()
-	 */
-	@Override
-	public Credentials getCredentials() {
-		// If credentials are null then they have not been provided by the
-		// command line or
-		// ant task and we default to Netrc file lookup.
-		if (null == credentials) {
-			if (null == getHostName()) {
-				log.error("Failed to resolve credentials from Netrc config. No target 'hostName' value has been provided");
-				return null;
+		try {
+			log.debug("Resolving credentials from Netrc config.");
+			credentials = getCredentialsFromNetrcConfig(getHostName());
+			if (log.isDebugEnabled() && credentials != null) {
+				log.debug("Resulting username from Netrc config: username=" + credentials.getUserName());
 			}
-			try {
-				log.debug("Resolving credentials from Netrc config.");
-				credentials = getCredentialsFromNetrcConfig(getHostName());
-				if (log.isDebugEnabled()) {
-					log.debug("Resulting username from Netrc config: username="
-							+ ((null == credentials) ? null : credentials
-									.getUserName()));
-				}
-				if (null == credentials) {
-					log.error("Failed to resolve credentials. Credential have not been provided for the target host either by command line or ant task or Netrc config file.");
-				}
-			} catch (Exception ex) {
-				log.error(
-						"Failed to resolve credentials from Netrc config. Error msg: "
-								+ ex.getMessage(), ex);
+
+			if (credentials == null) {
+				log.error("Failed to resolve credentials. Credential have not been provided for the target host either by command line or ant task or Netrc config file.");
 			}
+		} catch (Exception ex) {
+			log.error("Failed to resolve credentials from Netrc config. Error msg: " + ex.getMessage(), ex);
 		}
 		return credentials;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setCredentials(org.dpdirect.utils.Credentials)
-	 */
-	@Override
-	public void setCredentials(Credentials credentials) {
-		this.credentials = credentials;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getHostName()
-	 */
-	@Override
-	public String getHostName() {
-		return this.hostName;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setDomain(java.lang.String)
-	 */
-	@Override
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getDomain()
-	 */
-	@Override
-	public String getDomain() {
-		return this.domain;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getDomain()
-	 */
-	public String getDefaultDomain() {
-		return this.domain;
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setVerbose(java.lang.String)
-	 */
-	@Override
-	public void setVerbose(String verboseOutput) {
-		setDebug(verboseOutput);
-	}
-
-	/* (non-Javadoc)
 	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setDebug(java.lang.String)
 	 */
-	@Override
 	public void setDebug(String debugOutput) {
 		if (Constants.TRUE_OPT_VALUE.equalsIgnoreCase(debugOutput)) {
 			log.setLevel(org.apache.log4j.Level.DEBUG);
 		} else if (Constants.FALSE_OPT_VALUE.equalsIgnoreCase(debugOutput)) {
 			log.setLevel(org.apache.log4j.Level.INFO);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setFailOnError(boolean)
-	 */
-	@Override
-	public void setFailOnError(boolean failOnError) {
-		this.failOnError = failOnError;
 	}
 
 	/* (non-Javadoc)
@@ -673,10 +635,6 @@ public class DPDirectBase implements DPDirectInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#removeCheckpoint()
-	 */
-	@Override
 	public void removeCheckpoint() {
 		Operation removeCheckpoint = new Operation(this, Constants.REMOVE_CHECKPOINT_OP_NAME);
 		removeCheckpoint.addOption(Constants.CHK_NAME_OP_NAME, checkPointName);
@@ -684,39 +642,6 @@ public class DPDirectBase implements DPDirectInterface {
 		String xmlResponse = generateAndPost(removeCheckpoint);
 		removeCheckpoint.setResponse(xmlResponse);
 		parseResponseMsg(removeCheckpoint, false);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#createOperation()
-	 */
-	@Override
-	public Operation createOperation() {
-		Operation operation = new Operation(this);
-		addToOperationChain(operation);
-		return operation;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#createOperation(java.lang.String)
-	 */
-	@Override
-	public Operation createOperation(String operationName) {
-		Operation operation = new Operation(this, operationName);
-		addToOperationChain(operation);
-		return operation;
-	}
-
-	public Operation newOperation(String operationName) {
-		return new Operation(this, operationName);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#addOperation(java.lang.String)
-	 */
-	@Override
-	public void addOperation(String operationName) {
-		Operation operation = new Operation(this, operationName);
-		addToOperationChain(operation);
 	}
 
 	/**
@@ -734,10 +659,6 @@ public class DPDirectBase implements DPDirectInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#generateXMLInstance(org.dpdirect.dpmgmt.DPDirect.Operation)
-	 */
-	@Override
 	public String generateXMLInstance(Operation operation) {
 		String xmlString = null;
 		SchemaLoader workingInstance = null;
@@ -847,10 +768,6 @@ public class DPDirectBase implements DPDirectInterface {
 		return xmlString;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#postOperationXML()
-	 */
-	@Override
 	public void postOperationXML() {
 		Credentials credentials = getCredentials();
 
@@ -883,12 +800,7 @@ public class DPDirectBase implements DPDirectInterface {
 			removeCheckpoint();
 		}
 	}
-	
-	/**
-	 * Poll for the desired waitFor result.
-	 * 
-	 * @param operation : the operation to poll.
-	 */
+
 	public void pollForResult(Operation operation) throws Exception {
 		String responseString = null;
 		int numberOfPolls = 0;
@@ -953,10 +865,6 @@ public class DPDirectBase implements DPDirectInterface {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#postXMLInstance(org.dpdirect.dpmgmt.DPDirect.Operation, org.dpdirect.utils.Credentials)
-	 */
-	@Override
 	public String postXMLInstance(Operation operation, Credentials credentials) {
 		// String endPoint = operation.getEndPoint();
 		String xmlResponse = null;
@@ -1016,10 +924,6 @@ public class DPDirectBase implements DPDirectInterface {
 		return xmlResponse;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#parseResponseMsg(org.dpdirect.dpmgmt.DPDirect.Operation, boolean)
-	 */
-	@Override
 	public String parseResponseMsg(Operation operation, boolean handleError) {
 		List<Object> parseResult = new ArrayList<Object>();
 	    org.apache.log4j.Level logLevel = org.apache.log4j.Level.INFO;
@@ -1054,10 +958,6 @@ public class DPDirectBase implements DPDirectInterface {
 		return parsedText;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#isSuccessResponse(org.dpdirect.dpmgmt.DPDirect.Operation)
-	 */
-	@Override
 	public boolean isSuccessResponse(Operation operation) {
 		boolean success = false;
 		List<Object> parseResult = new ArrayList<Object>();
@@ -1078,10 +978,6 @@ public class DPDirectBase implements DPDirectInterface {
 		return success;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#processResponse(org.dpdirect.dpmgmt.DPDirect.Operation)
-	 */
-	@Override
 	public String processResponse(Operation operation) {
 		String parsedText = null;
 
@@ -1179,8 +1075,6 @@ public class DPDirectBase implements DPDirectInterface {
 	 *            String : the current parsed result string returned.
 	 * @param logLevel
 	 *            org.apache.log4j.Level : the log level of the error.
-	 * @throws Exception
-	 *             - throws parse errors.
 	 */
 	protected void errorHandler(Operation operation, String errorResponse,
 		 org.apache.log4j.Level logLevel) {
@@ -1241,7 +1135,7 @@ public class DPDirectBase implements DPDirectInterface {
 			log.info(output);
 		}
 	}
-	
+
 	protected void logWarn(Operation operation, String errorResponse){
 		if (!logOutput) {
 			System.out.println("WARNING: " + errorResponse);
@@ -1250,7 +1144,7 @@ public class DPDirectBase implements DPDirectInterface {
 			log.warn("errorResponse:\n" + errorResponse);
 		}
 	}
-	
+
 	protected void logError(Operation operation, String errorResponse){
 		if (!logOutput) {
 			System.out.println("ERROR: " + errorResponse);
@@ -1287,10 +1181,6 @@ public class DPDirectBase implements DPDirectInterface {
 		return success;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#generateAndPost(org.dpdirect.dpmgmt.DPDirect.Operation)
-	 */
-	@Override
 	public String generateAndPost(Operation operation) {
 		// Discern the target operation schema, and assign the DP device
 		// endpoint.
@@ -1309,10 +1199,11 @@ public class DPDirectBase implements DPDirectInterface {
 		return xmlResponse;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getCredentialsFromNetrcConfig(java.lang.String)
+	/**
+	 * Get the credentials from the Netrc configuration file.
+	 * @param hostName the host name to lookup.
+	 * @return the credentials.
 	 */
-	@Override
 	public Credentials getCredentialsFromNetrcConfig(String hostName) {
 		if (null != hostName) {
 			try {
@@ -1373,23 +1264,5 @@ public class DPDirectBase implements DPDirectInterface {
 		this.userFirmwareLevel = firmwareLevel;
 		this.firmwareLevel = intLevel;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#getNetrcFilePath()
-	 */
-	@Override
-	public String getNetrcFilePath() {
-		return netrcFilePath;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dpdirect.dpmgmt.DPDirectBaseInterface#setNetrcFilePath(java.lang.String)
-	 */
-	@Override
-	public void setNetrcFilePath(String netrcFilePath) {
-		this.netrcFilePath = netrcFilePath;
-	}
-
-
 
 }

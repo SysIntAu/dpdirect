@@ -16,25 +16,19 @@ package org.dpdirect.dpmgmt;
  * limitations under the License.
  */
 
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.dpdirect.utils.Credentials;
 import org.dpdirect.utils.XPathUtils;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 /**
- * Class for the management of IBM DataPower device via the and and the XML management
+ * Class for the management of IBM DataPower device via the and and the XML
+ * management
  * interface.
- * The purpose of this DynamicPoxy is to decouple the Ant TASK import from the cmd-line 
- * invocation of the program, and thus avoid an unnecessary import of the Ant lib.
+ * The purpose of this DynamicPoxy is to decouple the Ant TASK import from the
+ * cmd-line
+ * invocation of the program, and thus avoid an unnecessary import of the Ant
+ * lib.
  * 
  * Ant task for IBM DataPower management.
  * Generates valid SOMA and AMP XML sets, and then posts to the target device in
@@ -57,8 +51,10 @@ import javax.xml.xpath.XPathExpressionException;
  * <pre>
  * <code>
  * <target name="testDeploy">
- *     <taskdef name="dpDeploy" classname="org.dpdirect.dpmgmt.DPDirectTask" classpath="DPDirect.jar"/>
- *     <dpDeploy domain="SCRATCH" verbose="true" userName="EFGRTT" userPassword="droWssaP">
+ *     <taskdef name="dpDeploy" classname=
+"org.dpdirect.dpmgmt.DPDirectTask" classpath="DPDirect.jar"/>
+ *     <dpDeploy domain="SCRATCH" verbose="true" userName="EFGRTT" userPassword=
+"droWssaP">
  *        <operation name="SaveConfig" />
  *        <operation name="do-import">
  *           <option name="do-import" srcFile="C:/temp/SCRATCH.zip"/>
@@ -90,11 +86,13 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 				try {
 					log.debug("evaluating xpath \"" + xpath + "\" to set property \"" + name + "\"");
 					String value = XPathUtils.extractValue(xml, xpath);
-                    log.info("setting property \"" + name + "\" to \"" + value + "\"");
+
+					log.info("setting property \"" + name + "\" to \"" + value + "\"");
 					getProject().setProperty(name, value);
 				} catch (Exception e) {
 					log.error("error setting property \"" + name + "\" using xpath "
-						+ "\"" + xpath + "\" in response \"" + xml + "\"", e);
+							+ "\"" + xpath + "\" in response \"" + xml + "\"", e);
+
 					if (this.getFailOnError()) {
 						System.exit(1);
 					}
@@ -104,7 +102,8 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 		}
 	}
 
-	public DPDirectTask() {}
+	public DPDirectTask() {
+	}
 
 	@Override
 	public void execute() throws BuildException {
@@ -172,4 +171,3 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 		return base.createOperation();
 	}
 }
-

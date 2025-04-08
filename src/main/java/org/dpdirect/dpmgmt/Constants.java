@@ -581,4 +581,23 @@ public class Constants {
     */
    public static final String LOGOUT_DP_MSG_ID = "0x81000019";
 
+   /**
+    * The DataPower Message ID for Session Closed
+    */
+   public static final String SESSION_CLOSED_DP_MSG_ID = "0x81000736";
+
+   /**
+    * ANSI console code for red text
+    */
+   public static final String ANSI_RED = "\u001B[31m";
+
+   /**
+    * ANSI console code for orange text
+    */
+   public static final String ANSI_ORANGE = "\u001B[38;5;208m";
+
+   /**
+    * ANSI console reset code to restore text to default
+    */
+   public static final String ANSI_RESET = "\u001B[0m";
 }

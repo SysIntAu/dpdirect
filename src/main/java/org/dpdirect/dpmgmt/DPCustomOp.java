@@ -33,50 +33,50 @@ import static org.dpdirect.dpmgmt.Defaults.DEFAULT_WAIT_TIME_SECONDS;
 /**
  * Class for the management of IBM DataPower device via the XML management
  * interface.
- * 
+ *
  * @author Tim Goodwill
  */
 public class DPCustomOp {
-	
+
 	/** The name of the custom operation. */
 	protected String customOpName;
-	
+
 	/** The regular operation name underlying the custom op. */
 	protected String baseOpName;
-	
+
 	/** The operation instance representing this custom op */
 	protected Operation op = null;
-	
+
 	/** The base instance of DPDirectBase. */
 	protected DPDirectBase DPDBase = null;
-	
+
 	/** The object name. */
 	protected String objectName = null;
-	
+
 	/** The object class name. */
 	protected String objectClass = null;
 
 	/** List of currently attached monitors. */
 	protected List<String> monitorList = new ArrayList<String>();
-	
+
 	/** Has this custom operation been configured. */
 	protected boolean configured = false;
-	
+
 	/** Has this custom operation been logged. */
 	protected boolean postLogged = false;
-	
+
 	/** Does this custom operation poll the device. */
 	protected boolean polls = false;
-	
+
 	/** Number of log initial lines to display. */
 	protected int tailLines = 0;
 
 	/** list of displayed log lines when tailing. */
 	protected List<String> lineList = new ArrayList<String>();
-	
+
 	/** Default number of tail log lines. */
 	public static int DEFAULT_TAIL_LINES_COUNT = 12;
-	
+
 	/**
 	 * @param tailLogLines
 	 *            the tailLogLines to set
@@ -84,7 +84,7 @@ public class DPCustomOp {
 	public static void setDefaultTailLines(int tailLogLines) {
 		DEFAULT_TAIL_LINES_COUNT = tailLogLines;
 	}
-	
+
 	/**
 	 * @returns default tailLogLines
 	 */
@@ -96,19 +96,27 @@ public class DPCustomOp {
 	 * The log poll interval as a value in milliseconds.
 	 */
 	protected int pollIntMillis = DEFAULT_POLL_INT_MILLIS;
-	
+
 	/**
 	 * The tail-log poll interval as a value in milliseconds.
 	 */
 	public static int LOG_POLL_INT_MILLIS = 500;
-	
+
 	/**
 	 * The tail-count (message-counts) poll interval as a value in milliseconds.
 	 */
 	public static int COUNT_POLL_INT_MILLIS = DEFAULT_WAIT_TIME_SECONDS;
-	
+
 	/**
-	 * HashMap of all custom operations configured for this class, 
+	 * DataPower message codes that will be omitted in tail-log operations.
+	 */
+	public static String[] OMITED_DP_MSG_IDS = {
+			Constants.LOGIN_DP_MSG_ID,
+			Constants.LOGOUT_DP_MSG_ID,
+			Constants.SESSION_CLOSED_DP_MSG_ID
+	};
+	/**
+	 * HashMap of all custom operations configured for this class,
 	 * and corresponding underlying valid SOMA or AMP operation name.
 	 */
 	public static HashMap<String,String> customOps = new HashMap<String,String>(){{
@@ -119,7 +127,7 @@ public class DPCustomOp {
 		put(Constants.TAIL_LOG_CUSTOM_OP_NAME, Constants.GET_FILE_OP_NAME);
 		put(Constants.TAIL_COUNT_CUSTOM_OP_NAME, Constants.GET_STATUS_OP_NAME);
 	}};
-	
+
 	/**
 	 * @return does the name correspond to a custom operation?
 	 */
@@ -127,7 +135,7 @@ public class DPCustomOp {
 		return customOps.keySet().contains(name);
 	}
 
-	
+
 	/**
 	 * Default constructor for nested Operation class.
 	 */
@@ -136,7 +144,7 @@ public class DPCustomOp {
 
 	/**
 	 * Named Constructor for for nested Operation class.
-	 * 
+	 *
 	 * @param operationName
 	 *            String : the name of this operation.
 	 */
@@ -156,14 +164,14 @@ public class DPCustomOp {
 	public String getName(){
 		return customOpName;
 	}
-	
+
 	/**
 	 * @return the underlying valid SOMA or AMP operation name.
 	 */
 	public String getBaseName(){
 		return baseOpName;
 	}
-	
+
 	/**
 	 * Configures custom operations by mapping single operations to a sequence
 	 * of SOMA operations as required to achieve the operation goal.
@@ -217,11 +225,11 @@ public class DPCustomOp {
 		}
 		return configured;
 	}
-	
+
 	/**
-	 * A custom op may intercept a regular post to the device 
+	 * A custom op may intercept a regular post to the device
 	 * if a custom approach is required.
-	 * 
+	 *
 	 * @return intercept the post.
 	 */
 	public boolean customPostIntercept() {
@@ -258,13 +266,13 @@ public class DPCustomOp {
 			} finally {
 				interceptPost = true;
 			}
-		} 
+		}
 		return interceptPost;
 	}
-	
+
 	/**
 	 * Utility method to create/modify custom options from name/value pair.
-	 * 
+	 *
 	 * @param optionName
 	 *            the name of the option.
 	 * @param optionValue
@@ -274,10 +282,10 @@ public class DPCustomOp {
 		// set custom values
 		if (Constants.NAME_OPT_NAME.equalsIgnoreCase(optionName)) {
 			setObjectName(optionValue);
-		} 
+		}
 		else if (Constants.CLASS_OPT_NAME.equalsIgnoreCase(optionName)) {
 			setObjectClass(optionValue);
-		} 
+		}
 		else if (Constants.LINES_OPT_NAME.equalsIgnoreCase(optionName)) {
 			int tailLogLines = getDefaultTailLines();
 			try {
@@ -286,8 +294,8 @@ public class DPCustomOp {
 				// Ignore.
 			}
 			setTailLogLines(tailLogLines);
-		} 
-		
+		}
+
 		// alter option values where appropriate
 		if (Constants.TAIL_COUNT_CUSTOM_OP_NAME.equals(customOpName)) {
 			if (Constants.CLASS_OPT_NAME.equalsIgnoreCase(optionName)
@@ -297,13 +305,13 @@ public class DPCustomOp {
 			}
 		}
 		else if (Constants.TAIL_LOG_CUSTOM_OP_NAME.equals(customOpName)) {
-			if (Constants.NAME_OPT_NAME.equalsIgnoreCase(optionName) 
+			if (Constants.NAME_OPT_NAME.equalsIgnoreCase(optionName)
 				   && (!optionValue.contains(Constants.LOGTEMP_DIR_NAME + ":"))) {
 				optionValue = Constants.LOGTEMP_DIR_NAME + ":/" + optionValue.trim();
 				op.getOption(Constants.NAME_OPT_NAME).setValue(optionValue);
 			}
 		}
-		
+
 		// configure against set values
 		if (!this.configured) {
 			configureCustomOperation();
@@ -326,7 +334,7 @@ public class DPCustomOp {
 
 	/**
 	 * Clears the log list.
-	 * 
+	 *
 	 * @param lineList
 	 *            the logList to set
 	 */
@@ -386,7 +394,7 @@ public class DPCustomOp {
 	public boolean getPostLogged() {
 		return this.postLogged;
 	}
-	
+
 	/**
 	 * Set the post-logged flag for logging purposes
 	 */
@@ -417,10 +425,10 @@ public class DPCustomOp {
 		return DPDBase.getCredentials().getUserName() + "-" + this.getObjectName()
 				+ "-" + customOpName;
 	}
-	
+
 	/**
 	 * Filter lines using supplied filter.
-	 * 
+	 *
 	 * @param operation
 	 *            Operation : the current operation object.
 	 * @param parsedText
@@ -434,45 +442,50 @@ public class DPCustomOp {
 
 		StringBuffer outputLines = new StringBuffer();
 
-		String[] lines = parsedText.split("\r\n|\r|\n");
+		String[] lines = parsedText.split("(?=\\d{8}T\\d{6}\\.\\d+Z\\s+\\[0x)");
 
 		if (lineList.isEmpty()) {
 			int linesPrinted = 0;
-			for (int i = 0; i < lines.length; i++) {
-				String line = lines[i];
-				lineList.add(line);
-				if (line.length() > 1) {
-					if (displayLines > 0) {
-						if (++linesPrinted < displayLines) {
-							outputLines.append(line).append("\n");
-						}
-					} else {
+            for (String line : lines) {
+                lineList.add(line);
+                if (line.length() > 1) {
+                    if (displayLines > 0) {
+                        if (++linesPrinted < displayLines) {
+                            outputLines.append(line).append("\n");
+                        }
+                    } else {
+                        outputLines.append(line).append("\n");
+                    }
+                }
+            }
+		} else {
+			outer: for (String line : lines) {
+				// filter out specific message codes related to auth
+				inner: for (String messageId : OMITED_DP_MSG_IDS) {
+					if (line.contains("[" + messageId + "]")) {
+						continue outer;
+					}
+				}
+
+                if (!lineList.contains(line) || !uniqueEntries) {
+					lineList.add(line);
+
+					line = line.replaceAll("(?i)(error)", Constants.ANSI_RED + "$1" + Constants.ANSI_RESET);
+					line = line.replaceAll("(?i)(warn)", Constants.ANSI_ORANGE + "$1" + Constants.ANSI_RESET);
+
+					/* print out to console */
+					if (line.length() > 1) {
 						outputLines.append(line).append("\n");
 					}
-				}
-			}
-		} else {
-			for (int i = 0; i < lines.length; i++) {
-				String line = lines[i];
-				if ((!lineList.contains(line) || !uniqueEntries)) {
-					// suppress auth events from subsequent tail requests
-					if(!line.contains("[" + Constants.LOGIN_DP_MSG_ID + "]") && 
-							!line.contains("[" + Constants.LOGOUT_DP_MSG_ID + "]")) {
-						lineList.add(line);
-						/* print out to console */
-						if (line.length() > 1) {
-							outputLines.append(line).append("\n");
-						}
-					}
-				}
-			}
+                }
+            }
 		}
 		return outputLines;
 	}
-	
+
 	/**
 	 * Decode and parse the file contents and return only new lines.
-	 * 
+	 *
 	 * @param operation
 	 *            Operation : the current operation object.
 	 */

@@ -75,7 +75,7 @@ public class DPCustomOp {
 	protected List<String> lineList = new ArrayList<String>();
 
 	/** Default number of tail log lines. */
-	public static int DEFAULT_TAIL_LINES_COUNT = 12;
+	public static int DEFAULT_TAIL_LINES_COUNT = 50;
 
 	/**
 	 * @param tailLogLines
@@ -442,43 +442,45 @@ public class DPCustomOp {
 
 		StringBuffer outputLines = new StringBuffer();
 
-		String[] lines = parsedText.split("(?=\\d{8}T\\d{6}\\.\\d+Z\\s+\\[0x)");
+		String[] lines = parsedText.split("(?=\\d{8}T\\d{6}\\.\\d+Z\\s+\\[)");
 
-		if (lineList.isEmpty()) {
-			int linesPrinted = 0;
-            for (String line : lines) {
-                lineList.add(line);
-                if (line.length() > 1) {
-                    if (displayLines > 0) {
-                        if (++linesPrinted < displayLines) {
-                            outputLines.append(line).append("\n");
-                        }
-                    } else {
-                        outputLines.append(line).append("\n");
-                    }
-                }
-            }
-		} else {
-			outer: for (String line : lines) {
-				// filter out specific message codes related to auth
-				inner: for (String messageId : OMITED_DP_MSG_IDS) {
-					if (line.contains("[" + messageId + "]")) {
-						continue outer;
-					}
+		String filter = operation.getResponseParser().getFilter();
+
+		boolean inital = lineList.isEmpty();
+
+		outer: for (String line : lines) {
+			// filter out specific message codes related to auth
+			inner:
+			for (String messageId : OMITED_DP_MSG_IDS) {
+				if (line.contains("[" + messageId + "]")) {
+					continue outer;
+				}
+			}
+
+			if (!lineList.contains(line.trim()) && line.length() > 1) {
+				lineList.add(line.trim());
+
+				// ansi colour code key terms in the console
+				line = line.replaceAll("(?i)(failure|failed|fail|error)",
+						Constants.ANSI_RED + "$1" + Constants.ANSI_RESET);
+				line = line.replaceAll("(?i)(warning|warn)",
+						Constants.ANSI_ORANGE + "$1" + Constants.ANSI_RESET);
+				line = line.replaceAll("(?i)(successfully|success)",
+						Constants.ANSI_GREEN + "$1" + Constants.ANSI_RESET);
+				if (filter != null) {
+					line = line.replaceAll("(?i)(" + filter + ")",
+							Constants.ANSI_BLUE + "$1" + Constants.ANSI_RESET);
 				}
 
-                if (!lineList.contains(line) || !uniqueEntries) {
-					lineList.add(line);
-
-					line = line.replaceAll("(?i)(error)", Constants.ANSI_RED + "$1" + Constants.ANSI_RESET);
-					line = line.replaceAll("(?i)(warn)", Constants.ANSI_ORANGE + "$1" + Constants.ANSI_RESET);
-
-					/* print out to console */
-					if (line.length() > 1) {
-						outputLines.append(line).append("\n");
+				if (inital && displayLines > 0) {
+					if (outputLines.length() < displayLines) {
+						outputLines.append("\n").append(line);
 					}
-                }
-            }
+				} else {
+					outputLines.append("\n").append(line);
+				}
+
+			}
 		}
 		return outputLines;
 	}
@@ -503,7 +505,7 @@ public class DPCustomOp {
 			outputLines = appendLines(operation, parsedText);
 
 			if (0 < outputLines.length()) {
-				System.out.println(outputLines.toString().trim());
+				System.out.println(outputLines);
 			}
 		}
 

@@ -597,6 +597,17 @@ public class Constants {
    public static final String ANSI_ORANGE = "\u001B[38;5;208m";
 
    /**
+    * ANSI console for green text
+    */
+   public static final String ANSI_GREEN = "\u001B[32m";
+
+   /**
+    * ANSI console for green text
+    */
+   public static final String ANSI_BLUE = "\u001B[34m";
+
+
+   /**
     * ANSI console reset code to restore text to default
     */
    public static final String ANSI_RESET = "\u001B[0m";

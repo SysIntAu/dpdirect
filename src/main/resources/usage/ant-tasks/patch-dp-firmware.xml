@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *******************************************************************
+	**
+	** NAME
+	**  deploy-firmware.xml
+	**
+	** PURPOSE
+	**  This ANT script is used to prepare and upgrade the DataPower 
+	**	firmware for DataPower appliances configured for API Connect.
+	**
+	**  Note that this script should not be used for SOAP based 
+	**	appliances, as there are numerous checks for API Connect related
+	**	objects.
+	** 
+	**  The script utilises uses a custom task definition called DPDeploy to 
+	**  interact with the DataPower SOMA. The DPDeploy utility expects the 
+	**  DataPower user credentials can be configured as part of a .netrc file
+	**  or alternatively passed in as arguments.
+	**
+	** MODIFICATIONS
+	**	2025-02-04    Brendon Stephens    Initial script.
+	**
+	******************************************************************** -->
+<project name="patch-dp-firmware" default="patch.firmware.apic">
+
+	<property name="common.lib.dir" location="${basedir}/lib" />
+
+	<!-- Configure the ant-contrib task definitions -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${common.lib.dir}/ant-contrib-1.0b2.jar" />
+		</classpath>
+	</taskdef>
+	
+	<!-- Configure the DataPower Deploy task definition -->
+	<taskdef name="dpDeploy" classname="org.dpdirect.dpmgmt.DPDirectTask">
+		<classpath>
+			<fileset dir="${common.lib.dir}">
+				<include name="*.jar" />
+			</fileset>
+		</classpath>
+	</taskdef>
+
+	<!-- Script Properties -->
+	<property name="verbose" value="false" />
+
+	<property name="dp.username" value="soapeauto" />
+	<property name="dp.password" value="" />
+	<property name="dp.firmware.version" value="" />
+
+	<property name="dp.hostname" value="" />
+
+	<property name="sftp.host" value="" />
+	<property name="sftp.user" value="" />
+	<property name="sftp.password" value="" />
+	<property name="sftp.base.dir" value="/datapower/firmware/" />
+	<property name="sftp.file" value="" />
+	<property name="sftp.conn.string" 
+		value="sftp://${sftp.user}:${sftp.password}@${sftp.host}/${sftp.base.dir}/${sftp.file}"/>
+
+	<property name="xpath.obj.down" 
+		value="//ObjectStatus[normalize-space(OpState) = 'down' and normalize-space(AdminState) = 'enabled']"/>
+
+	<!-- Validate mandatory arguments -->
+	<condition property="mandatory.args" 
+		value="dp.username,dp.password,dp.firmware.version,dp.hostname,sftp.host,sftp.user,sftp.password,sftp.base.dir,sftp.file,sftp.host"
+		else="dp.username,dp.password,dp.firmware.version,dp.hostname">
+		<or>
+			<equals arg1="${ant.project.invoked.target}" arg2="patch.firmware.apic" />
+			<equals arg1="${ant.project.invoked.target}" arg2="patch.firmware.esb" />
+		</or>
+	</condition>
+	<for list="${mandatory.args}" param="this.prop">
+		<sequential>
+			<fail message="The property '@{this.prop}' is required but not defined">
+				<condition>
+					<or>
+						<not><isset property="@{this.prop}"/></not>
+						<equals arg1="${@{this.prop}}" arg2="" />
+					</or>
+				</condition>
+			</fail>
+		</sequential>
+	</for>
+
+	<!-- Validate sftp.file -->
+	<condition property="valid.firmware.file">
+		<matches pattern="^idg\d+\.lts\.scrypt\d$" string="${sftp.file}"/>
+	</condition>
+	<fail message="Upgrade firmware file ${sftp.file} does not match the required pattern: ^idg\d+\.lts\.scrypt\d$" 
+		unless="valid.firmware.file" />
+	
+	<!-- Validate dp.firmware.version -->
+	<condition property="valid.firmware.version">
+		<matches pattern="^IDG\.\d+\.\d+\.\d+\.\d+$" string="${dp.firmware.version}"/>
+	</condition>
+	<fail message="Upgrade firmware version ${dp.firmware.version} does not match the required pattern: IDG.x.x.x.x" 
+		unless="valid.firmware.version" />
+
+    <!-- *******************************************************************
+		** target: patch.firmware
+		**
+		** PURPOSE
+		**   This is the root level target which is used to stage and deploy
+		**   the configured datapower gateways.
+		**  
+		******************************************************************** -->
+	<echo message="Starting script for host '${dp.hostname}'" />
+
+	<target name="patch.firmware" depends="fetch.firmware,quiesce.dp,apply.firmware" />
+	<target name="patch.firmware.apic" depends="patch.firmware.check,verify.status.apic" />
+
+    <!-- *******************************************************************
+		** target: set.dp.domains
+		**
+		** PURPOSE
+		**   This target will retrieve the list of domains on the host and
+		**   set it as an ANT property for later processing.
+		**  
+		******************************************************************** -->
+	<target name="set.dp.domains">
+		<echo message="Getting domain list for ${dp.hostname}" />
+		<dpDeploy firmware="10" domain="default" hostname="${dp.hostname}" verbose="${verbose}" failOnError="true"
+			username="${dp.username}" userPassword="${dp.password}">
+			<!-- Get the list of domains -->
+			<operation name="GetDomainListRequest">
+				<setproperty name="dp.domain.list" xpath="//*[local-name() = 'Domain']"/>
+			</operation>	
+		</dpDeploy>
+	</target>
+
+    <!-- *******************************************************************
+		** target: set.firmware.version
+		**
+		** PURPOSE
+		**   This target will set the ANT variable with current firmware
+		**   version on the device.
+		**  
+		******************************************************************** -->
+	<target name="set.firmware.version">
+		<dpDeploy firmware="10" domain="default" hostname="${dp.hostname}" verbose="${verbose}" failOnError="true"
+			username="${dp.username}" userPassword="${dp.password}">
+			<!-- Check the firmware version is correct -->
+			<operation name="get-status">
+				<option name="class" value="FirmwareVersion3" />
+				<setproperty name="current.firmware.version" xpath="//FirmwareVersion3/Version"/>
+			</operation>	
+		</dpDeploy>
+	</target>
+
+    <!-- *******************************************************************
+		** target: patch.firmware.check
+		**
+		** PURPOSE
+		**   This target will confirm the firmware version on the appliance
+		**   is lesser than (string comparison) the version to be upgraded.
+		**  
+		******************************************************************** -->
+	<target name="patch.firmware.check" depends="set.firmware.version">
+		<echo message="Validating firmware version on host ${dp.hostname}" />
+		<if>
+			<not>
+				<bool>
+					<isgreaterthan arg1="${dp.firmware.version}" arg2="${current.firmware.version}"/>
+				</bool>
+			</not>
+			<then>
+				<echo message="Current firmware version ${current.firmware.version} is greater or equal to new firmware ${dp.firmware.version}" />
+				<echo message="Skipping patching operations."/>
+			</then>
+			<else>
+				<antcall target="patch.firmware"/>
+			</else>
+		</if>
+	</target>
+
+    <!-- *******************************************************************
+		** target: fetch.firmware
+		**
+		** PURPOSE
+		**   This target will fetch the datapower firmware image from a remote
+		**	 SFTP server and stage it on the device within the image:/// dir.
+		**  
+		******************************************************************** -->
+	<target name="fetch.firmware">
+		<echo message="Deleting any existing firmware file from disk" />
+		<dpDeploy firmware="10" domain="default" hostname="${dp.hostname}" verbose="${verbose}"
+			username="${dp.username}" userPassword="${dp.password}" failOnError="false">
+			<!-- Delete the file if it exists -->
+			<operation name="do-action">
+				<option name="DeleteFile.File" value="image:///${sftp.file}" />
+			</operation>
+		</dpDeploy>
+		<echo message="Fetching firmware file from sftp server to host ${dp.hostname}" />
+		<dpDeploy firmware="10" domain="default" hostname="${dp.hostname}" verbose="${verbose}"
+			username="${dp.username}" userPassword="${dp.password}" failOnError="true">
+			<!-- Fetch the firmware image from SFTP server -->
+			<operation name="FetchFile">
+				<option name="URL" value="${sftp.conn.string}" />
+				<option name="File" value="image:///${sftp.file}" />
+			</operation>
+		</dpDeploy>
+		<sleep seconds="2" />
+	</target>
+
+    <!-- *******************************************************************
+		** target: quiesce.dp
+		**
+		** PURPOSE
+		**   This target will quiesce the datapower appliance and all domains
+		**	 within the appliance. Note that it is better to quiesce 
+		**   individual domains rather than run the QuiesceDP operation, which
+		**   can be unresponsive on appliances with many domains.
+		**  
+		******************************************************************** -->
+	<target name="quiesce.dp" depends="set.dp.domains">
+		<echo message="Quiesceing datapower domains on ${dp.hostname}" />
+		<for list="${dp.domain.list}" param="this.dp.domain">
+			<sequential>
+				<!-- Skip the default domain for now -->
+				<if>
+					<not><equals arg1="default" arg2="@{this.dp.domain}"/></not>
+					<then>
+						<!-- Quiesce the application domain -->
+						<antcall target="quiesce.domain" inheritall="true" inheritrefs="true">
+							<param name="to.dp.domain" value="@{this.dp.domain}" />
+						</antcall>
+					</then>
+				</if>
+			</sequential>
+		</for>
+		<!-- Quiesce the default domain -->
+		<antcall target="quiesce.domain" inheritall="true" inheritrefs="true">
+			<param name="to.dp.domain" value="default" />
+		</antcall>
+	</target>
+
+    <!-- *******************************************************************
+		** target: quiesce.domain
+		**
+		** PURPOSE
+		**   This target will quiesce a specific domain within the datapower
+		**	 appliance, and wait for it to be in a quiesced state.
+		**
+		** ARGS:
+		**   to.dp.domain - the domain to quiesce
+		**  
+		******************************************************************** -->
+	<target name="quiesce.domain">
+		<echo message="Quiesceing domain ${to.dp.domain}" />
+		<dpDeploy firmware="10" domain="${to.dp.domain}" hostname="${dp.hostname}" verbose="${verbose}"
+			username="${dp.username}" userPassword="${dp.password}" failOnError="true">
+			<!-- Quiesce the domain -->
+			<operation name="DomainQuiesce">
+				<option name="name" value="${to.dp.domain}" />
+				<option name="timeout" value="60" />
+			</operation>
+		</dpDeploy>
+		<sleep seconds="5" />
+		<echo message="Checking domain status for domain ${to.dp.domain}" />
+		<dpDeploy domain="${to.dp.domain}" hostname="${dp.hostname}" verbose="${verbose}"
+			username="${dp.username}" userPassword="${dp.password}" failOnError="true">
+			<!-- Wait for the application domain to be down -->
+			<operation name="GetDomainStatusRequest" waitTime="180" pollIntMillis="5000" 
+				waitForXPath="//*[local-name() = 'QuiesceState'][normalize-space(.) = 'quiesced']" />
+		</dpDeploy>
+	</target>
+
+    <!-- *******************************************************************
+		** target: apply.firmware
+		**
+		** PURPOSE
+		**   This target will apply the firmware image, accept the license
+		**	 agreeement and then restart the appliance. It can take anywhere
+		**	 between 1 and 2 minutes.
+		**  
+		******************************************************************** -->
+	<target name="apply.firmware">
+		<echo message="Applying firmware patch on host ${dp.hostname}" />
+		<dpDeploy firmware="10" domain="default" hostname="${dp.hostname}" verbose="${verbose}"
+			username="${dp.username}" userPassword="${dp.password}" failOnError="true">
+			<!-- Apply the firmware patch -->
+			<operation name="ApplyPatch">
+				<option name="AcceptLicense" value="true" />
+				<option name="File" value="image:///${sftp.file}" />
+			</operation>
+		</dpDeploy>
+		<echo message="Sleeping for 120 seconds to allow DataPower to reboot" />
+		<sleep seconds="120" />
+	</target>
+
+    <!-- *******************************************************************
+		** target: verify.status
+		**
+		** PURPOSE
+		**   This target will verify the firmware version matches the intended
+		**   upgrade version and that all application domains are in an "up"
+		**	 state.
+		**  
+		******************************************************************** -->
+	<target name="verify.status" depends="set.dp.domains">
+		<echo message="Checking status of default domain on host ${dp.hostname}" />
+		<dpDeploy firmware="10" domain="default" hostname="${dp.hostname}" verbose="${verbose}" 
+			username="${dp.username}" userPassword="${dp.password}" failOnError="true">
+			<!-- Wait for default domain to be up -->
+			<operation name="GetDomainStatusRequest" waitFor="up" waitTime="180" pollIntMillis="5000" />
+			<!-- Check the firmware version is correct -->
+			<operation name="get-status" waitForXPath="//FirmwareVersion3/Version[normalize-space(.) = '${dp.firmware.version}']">
+				<option name="class" value="FirmwareVersion3" />
+			</operation>
+		</dpDeploy>
+		<for list="${dp.domain.list}" param="this.dp.domain">
+			<sequential>
+				<echo message="Checking status of @{this.dp.domain} domain on host ${dp.hostname}" />
+				<dpDeploy firmware="10" domain="@{this.dp.domain}" hostname="${dp.hostname}" verbose="${verbose}"
+					username="${dp.username}" userPassword="${dp.password}">
+					<!-- Wait for application domain to be up -->
+					<operation name="GetDomainStatusRequest" waitFor="up" />					
+				</dpDeploy>
+			</sequential>
+		</for>
+	</target>
+
+    <!-- *******************************************************************
+		** target: verify.status.apic
+		**
+		** PURPOSE
+		**   This target will verify that the following objects necessary 
+		**   for operation are available and in an "up" state:
+		**      * API Connect Gateway Service
+		**      * Gateway Peering
+		**      * API Collection (confirms connection with APIM)
+		**  
+		******************************************************************** -->
+	<target name="verify.status.apic" depends="verify.status">
+		<for list="${dp.domain.list}" param="this.dp.domain">
+			<sequential>
+				<if>
+					<!-- Skip the default domain for now -->
+					<not> <equals arg1="default" arg2="@{this.dp.domain}"/> </not>
+					<then>
+						<echo message="Checking object status of @{this.dp.domain} domain on host ${dp.hostname}" />
+						<dpDeploy firmware="10" domain="@{this.dp.domain}" hostname="${dp.hostname}" verbose="${verbose}"
+							username="${dp.username}" userPassword="${dp.password}" failOnError="true">
+							<!-- Wait for API Connect Gateway Service to be up -->
+							<operation name="get-status" waitForXPath="//ObjectStatus/OpState[normalize-space(.) = 'up']">
+								<option name="object-class" value="APIConnectGatewayService" />
+							</operation>
+							<!-- Wait for Gateway Peering objects to be up -->
+							<operation name="get-status" waitForXPath="//ObjectStatus[Name = 'APICGWS']/OpState[normalize-space(.) = 'up']">
+								<option name="object-class" value="GatewayPeering" />
+							</operation>
+							<!-- Expect API Collection to exist -->
+							<operation name="get-config" waitForXPath="//APICollection[mAdminState = 'enabled']" waitTime="180" pollIntMillis="5000">
+								<option name="class" value="APICollection"/>
+							</operation>
+						</dpDeploy>
+					</then>
+				</if>
+			</sequential>
+		</for>
+	</target>
+
+</project>

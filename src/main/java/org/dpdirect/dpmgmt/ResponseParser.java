@@ -207,18 +207,17 @@ public class ResponseParser {
 	 * @return a list of results including the result test and result org.apache.log4j.Level.
 	 * @throws Exception
 	 */
-	public List<Object> parseResponseMsg(String responseString)
-			throws Exception {
+	public List<Object> parseResponseMsg(String responseString) throws Exception {
 		String resultText = "";
 
-		if (suppressResponse){
+		if (suppressResponse) {
 			List<Object> result = new ArrayList<Object>();
 			result.add(resultLevel);
 			result.add(resultText);
 			return result;
 		}
 
-		ArrayList<String> errorConditions = new ArrayList<String>();
+		List<String> errorConditions = new ArrayList<String>();
 		errorConditions.add("error");
 		errorConditions.add("Error");
 		errorConditions.add("ERROR");
@@ -226,171 +225,131 @@ public class ResponseParser {
 		errorConditions.add("Authentication failure");
 		errorConditions.addAll(failureState);
 
-		responseDoc = DocumentHelper.parseDocument(new ByteArrayInputStream(
-				responseString.getBytes()));
-
+		responseDoc = DocumentHelper.parseDocument(new ByteArrayInputStream(responseString.getBytes()));
 		xmlPayload = responseDoc.getFirstChild();
-		if (responseDoc.getElementsByTagNameNS(
-				"http://schemas.xmlsoap.org/soap/envelope/", "Body")
-				.getLength() > 0) {
-			if (null != responseDoc
-					.getElementsByTagNameNS(
-							"http://schemas.xmlsoap.org/soap/envelope/", "Body")
-					.item(0).getFirstChild()) {
-				xmlPayload = responseDoc
-						.getElementsByTagNameNS(
-								"http://schemas.xmlsoap.org/soap/envelope/",
-								"Body").item(0).getFirstChild();
-			}
+
+		Node bodyNode = responseDoc.getElementsByTagNameNS(
+"http://schemas.xmlsoap.org/soap/envelope/", "Body").item(0);
+		if (bodyNode != null && bodyNode.getFirstChild() != null) {
+			xmlPayload = bodyNode.getFirstChild();
 		}
+
 		Node resultNode = xmlPayload;
 		String responseNamespace = resultNode.getNamespaceURI();
 		String nodeName = resultNode.getLocalName();
 
-		/*
-		 * No NameSpace
-		 */
-		if (null == responseNamespace) {
+		// Process response with no namespace
+		if (responseNamespace == null) {
 			if (nodeName.equals("HttpErrorResponse")) {
 				resultLevel = org.apache.log4j.Level.FATAL;
 			}
 		}
-		/*
-		 * SOAP NameSpace
-		 */
-		else if (responseNamespace
-				.contains("http://schemas.xmlsoap.org/soap/envelope")) {
-			if (responseDoc.getElementsByTagNameNS(
-					"http://schemas.xmlsoap.org/soap/envelope/", "Fault")
-					.getLength() > 0) {
-				resultNode = responseDoc.getElementsByTagNameNS(
-						"http://schemas.xmlsoap.org/soap/envelope/", "Fault")
-						.item(0);
+
+		// Process response with SOAP namespace
+		else if (responseNamespace.contains("http://schemas.xmlsoap.org/soap/envelope")) {
+			if (responseDoc.getElementsByTagNameNS(responseNamespace, "Fault").getLength() > 0) {
+				resultNode = responseDoc.getElementsByTagNameNS(responseNamespace, "Fault").item(0);
 				resultLevel = org.apache.log4j.Level.FATAL;
 			}
 		}
-		/*
-		 * AMP NameSpace
-		 */
-		else if (responseNamespace
-				.contains("http://www.datapower.com/schemas/appliance/management")) {
-			if (responseDoc
-					.getElementsByTagNameNS(
-							responseNamespace,
-							"OpState").getLength() > 0) {
-				resultNode = responseDoc
-						.getElementsByTagNameNS(
-								responseNamespace,
-								"OpState").item(0);
-				if (errorConditions.contains(resultNode.getFirstChild()
-						.getNodeValue())) {
+
+		// Process response with AMP namespace
+		else if (responseNamespace.contains("http://www.datapower.com/schemas/appliance/management")) {
+			Node opStateNode = responseDoc.getElementsByTagNameNS(responseNamespace, "OpState").item(0);
+			Node statusNode = responseDoc.getElementsByTagNameNS(responseNamespace, "Status").item(0);
+
+			// OpState node
+			if (opStateNode != null) {
+				resultNode = opStateNode;
+				if (errorConditions.contains(opStateNode.getFirstChild().getNodeValue())) {
 					resultLevel = org.apache.log4j.Level.WARN;
 				}
-			} else if (responseDoc
-					.getElementsByTagNameNS(
-							responseNamespace,
-							"Status").getLength() > 0
-					&& responseDoc
-							.getElementsByTagNameNS(
-									responseNamespace,
-									"Status").item(0).hasChildNodes()) {
-				resultNode = responseDoc
-						.getElementsByTagNameNS(
-								responseNamespace,
-								"Status").item(0);
-				if (errorConditions.contains(resultNode.getFirstChild()
-						.getNodeValue())) {
+			}
+			// Status node
+			else if (statusNode != null && statusNode.hasChildNodes()) {
+				resultNode = statusNode;
+
+				if (errorConditions.contains(statusNode.getFirstChild().getNodeValue())) {
 					resultLevel = org.apache.log4j.Level.WARN;
 				}
 			}
 		}
-		/*
-		 * SOMA NameSpace
-		 */
-		else if (responseNamespace
-				.contains("http://www.datapower.com/schemas/management")) {
-			if (responseDoc.getElementsByTagNameNS(
-					"http://www.datapower.com/schemas/management", "status")
-					.getLength() > 0
-					&& responseDoc
-							.getElementsByTagNameNS(
-									"http://www.datapower.com/schemas/management",
-									"status").item(0).hasChildNodes()) {
-				resultNode = responseDoc
-						.getElementsByTagNameNS(
-								"http://www.datapower.com/schemas/management",
-								"status").item(0);
-				if (errorConditions.contains(resultNode.getFirstChild()
-						.getNodeValue())) {
-//					resultLevel = org.apache.log4j.Level.INFO;
+
+		// Process response with SOMA namespace
+		else if (responseNamespace.contains("http://www.datapower.com/schemas/management")) {
+			Node statusNode = responseDoc.getElementsByTagNameNS(responseNamespace, "status").item(0);
+			Node fileNode = responseDoc.getElementsByTagNameNS(responseNamespace, "file").item(0);
+			Node resultTag = responseDoc.getElementsByTagNameNS(responseNamespace, "result").item(0);
+			NodeList cfgResultList = responseDoc.getElementsByTagName("cfg-result");
+			NodeList fileResultList = responseDoc.getElementsByTagName("file-result");
+			Node responseNode = responseDoc.getElementsByTagNameNS(responseNamespace, "response").item(0);
+
+			// Status node
+			if (statusNode != null && statusNode.hasChildNodes()) {
+				resultNode = statusNode;
+
+				if (errorConditions.contains(statusNode.getFirstChild().getNodeValue())) {
 					resultLevel = org.apache.log4j.Level.WARN;
 				}
-			} else if (responseDoc.getElementsByTagNameNS(
-					"http://www.datapower.com/schemas/management", "file")
-					.getLength() > 0) {
-				resultNode = responseDoc.getElementsByTagNameNS(
-						"http://www.datapower.com/schemas/management", "file")
-						.item(0);
-				if (null != resultNode.getFirstChild()
-						&& resultNode.getFirstChild().getNodeValue().equals("ERROR")) {
+			}
+			// File node
+			else if (fileNode != null) {
+				resultNode = fileNode;
+				if (fileNode.getFirstChild() != null &&
+						fileNode.getFirstChild().getNodeValue().equals("ERROR")) {
 					resultLevel = org.apache.log4j.Level.FATAL;
 				}
-			} else if (responseDoc.getElementsByTagNameNS(
-					"http://www.datapower.com/schemas/management", "result")
-					.getLength() > 0) {
-				resultNode = responseDoc
-						.getElementsByTagNameNS(
-								"http://www.datapower.com/schemas/management",
-								"result").item(0);
-				if (responseDoc.getElementsByTagName("error-log").getLength()>0) {
-					resultNode = responseDoc.getElementsByTagName("error-log").item(0);
+			}
+			// Result node
+			else if (resultTag != null) {
+				resultNode = resultTag;
+
+				Node errorLog = responseDoc.getElementsByTagName("error-log").item(0);
+				if (errorLog != null) {
+					resultNode = errorLog;
 				}
-				Node eventNode = responseDoc.getElementsByTagNameNS(
-						"http://www.datapower.com/schemas/management",
-								"log-event").item(0);
-				if (null != resultNode 
-						&& null != resultNode.getFirstChild()
-						&& null != resultNode.getFirstChild().getNodeValue()
-						&& errorConditions.contains(resultNode.getFirstChild().getNodeValue().trim())) {
+
+				Node eventNode = responseDoc.getElementsByTagNameNS(responseNamespace, "log-event").item(0);
+				if (resultNode.getFirstChild() != null &&
+						resultNode.getFirstChild().getNodeValue() != null &&
+						errorConditions.contains(resultNode.getFirstChild().getNodeValue().trim())) {
 					resultLevel = org.apache.log4j.Level.FATAL;
-				} else if (null != eventNode
-						&& null != eventNode.getAttributes().getNamedItem(
-								"level")
-						&& errorConditions.contains(eventNode.getAttributes()
-								.getNamedItem("level").getNodeValue())) {
+				} else if (eventNode != null &&
+						eventNode.getAttributes().getNamedItem("level") != null &&
+						errorConditions.contains(eventNode.getAttributes()
+								.getNamedItem("level")
+								.getNodeValue())) {
 					resultLevel = org.apache.log4j.Level.FATAL;
 				}
-			} else if (responseDoc.getElementsByTagName("cfg-result")
-					.getLength() > 0) {
-				NodeList resultList = responseDoc.getElementsByTagName("cfg-result");
-				String status = null;
-				for (int i=0;i<resultList.getLength();i++) {
-					resultNode = resultList.item(i);
-					status = resultNode.getAttributes().getNamedItem("status").getNodeValue();
+			}
+			// CfgResultList node
+			else if (cfgResultList != null) {
+				for (int i = 0; i < cfgResultList.getLength(); i++) {
+					resultNode = cfgResultList.item(i);
+
+					String status = resultNode.getAttributes().getNamedItem("status").getNodeValue();
 					if (errorConditions.contains(status)) {
 						resultLevel = org.apache.log4j.Level.FATAL;
 						break;
 					}
 				}
-			} else if (responseDoc.getElementsByTagName("file-result")
-					.getLength() > 0) {
-				NodeList resultList = responseDoc.getElementsByTagName("file-result");
-				String status = null;
-				for (int i=0;i<resultList.getLength();i++) {
-					resultNode = resultList.item(i);
-					status = resultNode.getAttributes().getNamedItem("result").getNodeValue();
+			}
+			// FileResultList node
+			else if (fileResultList != null) {
+				for (int i = 0; i < fileResultList.getLength(); i++) {
+					resultNode = fileResultList.item(i);
+
+					String status = resultNode.getAttributes().getNamedItem("result").getNodeValue();
 					if (errorConditions.contains(status)) {
 						resultLevel = org.apache.log4j.Level.FATAL;
 						break;
 					}
 				}
-			} else if (responseDoc.getElementsByTagNameNS(
-					"http://www.datapower.com/schemas/management", "response")
-					.getLength() > 0) {
-				resultNode = responseDoc.getElementsByTagNameNS(
-						"http://www.datapower.com/schemas/management",
-						"response").item(0);
-				if (errorConditions.contains(resultNode.getFirstChild().getNodeValue())) {
+			}
+			// Response node
+			else if (responseNode != null) {
+				resultNode = responseNode;
+				if (errorConditions.contains(responseNode.getFirstChild().getNodeValue())) {
 					resultLevel = org.apache.log4j.Level.FATAL;
 				}
 			}
@@ -401,8 +360,10 @@ public class ResponseParser {
 		List<Object> result = new ArrayList<Object>();
 		result.add(resultLevel);
 		result.add(resultText);
+
 		return result;
 	}
+
 
 	/**
 	 * Return output from response XML based on selected output mode.

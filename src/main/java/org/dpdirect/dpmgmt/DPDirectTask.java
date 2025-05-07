@@ -107,7 +107,6 @@ public class DPDirectTask extends Task implements DPDirectInterface {
 
 	@Override
 	public void execute() throws BuildException {
-		System.out.println(getProject());
 		base.execute();
 	}
 

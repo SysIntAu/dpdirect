@@ -345,8 +345,9 @@ public class ResponseParser {
 				if (responseDoc.getElementsByTagName("error-log").getLength()>0) {
 					resultNode = responseDoc.getElementsByTagName("error-log").item(0);
 				}
-				Node eventNode = responseDoc.getElementsByTagName("log-event")
-						.item(0);
+				Node eventNode = responseDoc.getElementsByTagNameNS(
+						"http://www.datapower.com/schemas/management",
+								"log-event").item(0);
 				if (null != resultNode 
 						&& null != resultNode.getFirstChild()
 						&& null != resultNode.getFirstChild().getNodeValue()

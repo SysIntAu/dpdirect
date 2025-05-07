@@ -8,7 +8,7 @@
 	<name>dpdirect</name>
 	<description>DPDirect is a general deployment and administration utility for use with IBM DataPower appliances</description>
 	<properties>
-		<revision>1.0.15</revision>
+		<revision>1.0.16</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- default environment -->
 		<env>local</env>

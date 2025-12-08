@@ -893,21 +893,20 @@ public abstract class DPDirectBase implements DPDirectInterface {
 			}
 			
 			if (logOutput) {
-				String description = "";
 				if (operation.getDescription() != null && !operation.getDescription().isEmpty()) {
-					description = " (" + operation.getDescription() + ")";
+					log.info(operation.getDescription());
 				}
 
 				if (null != operation.getParentOperation()){
 					DPCustomOp customOp = operation.getParentOperation();
 					if (!customOp.getPostLogged()){
 						String opName = customOp.getName();
-						log.info("Invoke " + opName + description);
+						log.info("operation: " + opName);
 						customOp.setPostLogged(true);
 					}
 				} else {
 					String opName = operation.getInvokedName();
-					log.info("Invoke " + opName + description);
+					log.info("operation: " + opName);
 				}
 			}
 			

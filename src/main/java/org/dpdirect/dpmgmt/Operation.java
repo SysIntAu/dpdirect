@@ -25,6 +25,8 @@ public class Operation {
 
     protected String name = null;
 
+    protected String description = null;
+
     protected DPCustomOp customOperation = null;
 
     protected DPCustomOp parentOperation = null;
@@ -121,6 +123,23 @@ public class Operation {
         } else {
             this.name = name;
         }
+    }
+
+    /**
+     * Set the description of this Operation instance.
+     *
+     * @param description
+     *            the description of this operation.
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Get the description of this Operation instance.
+     */
+    public String getDescription() {
+        return this.description;
     }
 
     /**

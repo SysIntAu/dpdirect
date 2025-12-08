@@ -427,18 +427,18 @@ public abstract class DPDirectBase implements DPDirectInterface {
 		try {
 			if (schemaLoaderList.isEmpty()) {
 				if (firmwareLevel >= 3) {
-					log.info("Using custom schema paths for firmware level " + firmwareLevel);
+					log.debug("Using custom schema paths for firmware level " + firmwareLevel);
 					addSchema(Constants.MGMT_SCHEMAS_DIR + "/" + userFirmwareLevel + "/" + Constants.SOMA_MGMT_SCHEMA_NAME,
 							"SOMAInstance", null);
 					addSchema(Constants.MGMT_SCHEMAS_DIR + "/" + userFirmwareLevel + "/" + Constants.AMP_MGMT_DEFAULT_SCHEMA_NAME,
 							"AMPInstance", null);
 				} else {
-					log.info("Using default schema paths for firmware level " + firmwareLevel);
+					log.debug("Using default schema paths for firmware level " + firmwareLevel);
 					addSchema(Constants.SOMA_MGMT_DEFAULT_SCHEMA_PATH, "SOMAInstance", null);
 					addSchema(Constants.AMP_MGMT_DEFAULT_SCHEMA_PATH, "AMPInstance", null);
 				}
 			} else {
-				log.info("Schemas already loaded. Skipping schema initialization.");
+				log.debug("Schemas already loaded. Skipping schema initialization.");
 			}
 		} catch (Exception ex) {
 			if (!failOnError && !log.isDebugEnabled()) {
@@ -488,7 +488,7 @@ public abstract class DPDirectBase implements DPDirectInterface {
 		} else {
 			schemaLoaderList.add(loader);
 		}
-		log.info(label + " schema loaded successfully. URI: " + loader.getSchemaURI());
+		log.debug(label + " schema loaded successfully. URI: " + loader.getSchemaURI());
 	}
 
 	/**
@@ -893,16 +893,21 @@ public abstract class DPDirectBase implements DPDirectInterface {
 			}
 			
 			if (logOutput) {
+				String description = "";
+				if (operation.getDescription() != null && !operation.getDescription().isEmpty()) {
+					description = " (" + operation.getDescription() + ")";
+				}
+
 				if (null != operation.getParentOperation()){
 					DPCustomOp customOp = operation.getParentOperation();
 					if (!customOp.getPostLogged()){
 						String opName = customOp.getName();
-						log.info(opName);
+						log.info("Invoke " + opName + description);
 						customOp.setPostLogged(true);
 					}
 				} else {
 					String opName = operation.getInvokedName();
-					log.info(opName);
+					log.info("Invoke " + opName + description);
 				}
 			}
 			
@@ -1095,7 +1100,7 @@ public abstract class DPDirectBase implements DPDirectInterface {
 			System.out.println("WARNING: " + errorResponse);
 		}
 		else {
-			log.warn("errorResponse:\n" + errorResponse);
+			log.warn(errorResponse);
 		}
 	}
 
@@ -1104,7 +1109,7 @@ public abstract class DPDirectBase implements DPDirectInterface {
 			System.out.println("ERROR: " + errorResponse);
 		}
 		else {
-			log.error("errorResponse:\n" + errorResponse);
+			log.error(errorResponse);
 			if (errorResponse.trim().isEmpty()) {
 				try {
 					log.error(DocumentHelper.prettyPrintXML(operation.getResponse()));
